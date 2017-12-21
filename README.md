@@ -11,4 +11,5 @@ Code and report for the final project of the Computational Game Theory course at
 - Writing/formatting of the report: Matthias?
 - Write code to reproduce results from the paper:
 - Generate nice figures:
+- Additional work extending the paper to gain extra points:
 - ...
