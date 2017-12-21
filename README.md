@@ -2,12 +2,16 @@
 
 Code and report for the final project of the Computational Game Theory course at Vrije Universitetit Brussel (VUB) WS2017.
 
+## Paper: Accelerating multi-agent reinforcement learning with dynamic co-learning 
+
 ## Directories
+Explanation of the proposed directory structure. Feel free to change anything you don't like.
 - code: All code written to reproduce the results.
 - report: All files needed to generate the report (figures, bibliography...)
 - assets: All additional material (referenced papers, templates, problem specification...)
 
 ## Tasks
+Some possible tasks. Just add, change, delete whatever you see fit. I'd propose a meeting between christmas and new year to see where we all are on our tasks and if we need to put joint effort into something.
 - Writing/formatting of the report
   - Responsible: Matthias (?)
   - Deadline: 08.01.2018
