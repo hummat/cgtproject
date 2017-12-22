@@ -15,8 +15,11 @@ Some possible tasks. Just add, change, delete whatever you see fit. I'd propose 
 - Writing/formatting of the report
   - Responsible: Matthias (?)
   - Deadline: 08.01.2018
-- Write code to reproduce results from the paper (including figures)
+- Write code to reproduce results from the papes
   - Responsible:
+  - Deadline: 05.01.2018 (?)
+- Reproduce figures from the paper
+  - Responsible: Matthias (?)
   - Deadline: 05.01.2018 (?)
 - Additional work extending the paper to gain extra points:
   - Responsible:
