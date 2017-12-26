@@ -60,3 +60,12 @@ Summary of the parameters and components provided in the paper to implement the 
 - Noise level: 0, 0.25, 0.5, 0.75, 1
 - Simulations: 30 (for mean/variance plot)
 - Primary measure of performance: area under the learning curve (AUC)
+
+
+# Meeting Decisions
+- Coding Scala, Akka framework
+- Quentin: presentation, load-balancing
+- Matthias: presentation, load-balancing
+- Steve: supervisory structure
+- Fabian: supervisory structure
+
