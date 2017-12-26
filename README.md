@@ -33,6 +33,7 @@ Some possible tasks. Just add, change, delete whatever you see fit. I'd propose 
 
 ## System components and parameterization
 Summary of the parameters and components provided in the paper to implement the system.
+- Setting: Distributed load balancing domain. A cooperative multi-agent system in which the agents try to minimize the joint service time of a set of tasks.
 - Agents: 100 (default), 324, 729
   - Each agent maintains a queue of tasks called the _processing queue_ (each with a service time s).
   - Agents can decide to work on the current task themselves (task moves from _routing queue_ to _processing queue_) or       to forward it to any of its neighbors.
@@ -40,13 +41,18 @@ Summary of the parameters and components provided in the paper to implement the 
   - Learning window K: 50, 75, 100, 115 (default), 200, 300, 400, 500
   - Reward function: 1/average service time over last K time steps
   - Reward: 1/s upon selection of a task
-  - Q values: The actual service time s needed to complete the task?
-  - Context features: (1) rate of task receival from the environment of neighbors, (2) rate of task receival from other agents of neighbors, (3) load (probably sum of service time s of tasks in the agents processing queue?) relative to mean load of neighbors
+  - Value function (Q values): The actual service time s needed to complete the task?
+  - Context feature vector C: Proxy for true state transition and reward model of environment. Composed of (1) rate of task receival from the environment of neighbors, (2) rate of task receival from other agents of neighbors, (3) load (probably sum of service time s of tasks in the agents processing queue?) relative to mean load of neighbors
 - Environment: Creates tasks and associates them with an agent by placing the task in the agents _routing queue_.
   - How are those tasks generated?
   - How does the agent association work?
-- Supervisors: 0 (baseline), 1, 4, 9
-  -
+- Supervisory agents: 0 (baseline), 1, 4, 9
+  - Serve as communication channel between agents
+  - Identify agents which have made similar experiences
+  - Shares compatible knowledge between such _learning groups_
+  - Distance measure for reward function similarity D_R: (Symmetric) Kullback–Leibler divergence (SKL) between reward functions of two agents
+  - Distance measure for state transition function similarity D_S: SKL between state transition model of two agents
+  - Compatibility measure for agents: Minimum of sum of D_R and D_S, balancing influence of D_R and D_S with parameter lambda.
 - Run length: 10000 time units
 - Noise level: 0, 0.25, 0.5, 0.75, 1
 - Simulations: 30 (for mean/variance plot)
