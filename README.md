@@ -37,6 +37,7 @@ Summary of the parameters and components provided in the paper to implement the 
 - Agents: 100 (default), 324, 729
   - Each agent maintains a queue of tasks called the _processing queue_ (each with a service time s).
   - Agents can decide to work on the current task themselves (task moves from _routing queue_ to _processing queue_) or       to forward it to any of its neighbors.
+  - Compress knowledge to be shared by performing linear regression over last K time steps (learning window)
   - Service time s: How many time units does this task take to be completed
   - Learning window K: 50, 75, 100, 115 (default), 200, 300, 400, 500
   - Reward function: 1/average service time over last K time steps
@@ -47,12 +48,14 @@ Summary of the parameters and components provided in the paper to implement the 
   - How are those tasks generated?
   - How does the agent association work?
 - Supervisory agents: 0 (baseline), 1, 4, 9
+  - Responsible for a set U of agents
   - Serve as communication channel between agents
   - Identify agents which have made similar experiences
   - Shares compatible knowledge between such _learning groups_
   - Distance measure for reward function similarity D_R: (Symmetric) Kullback–Leibler divergence (SKL) between reward functions of two agents
   - Distance measure for state transition function similarity D_S: SKL between state transition model of two agents
   - Compatibility measure for agents: Minimum of sum of D_R and D_S, balancing influence of D_R and D_S with parameter lambda.
+  - How is lambda chosen?
 - Run length: 10000 time units
 - Noise level: 0, 0.25, 0.5, 0.75, 1
 - Simulations: 30 (for mean/variance plot)
