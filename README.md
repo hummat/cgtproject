@@ -30,3 +30,16 @@ Some possible tasks. Just add, change, delete whatever you see fit. I'd propose 
 - (PowerPoint) Presentation of our work for the exam:
   - Responsible:
   - Deadline: 18.01.2018 (Exam is on the 19th)
+
+## System components and parameterization
+Summary of the parameters and components provided in the paper to implement the system.
+- Agents: 100 (default), 324, 729
+  - Each agent maintains a queue of tasks (each with a service time s)
+  - Service time s: How many time units does this task take to be completed
+  - Learning window K: 50, 75, 100, 115 (default), 200, 300, 400, 500
+  - Reward function: \frac{1}{\sum_{i=1}^{K} s_i}
+- Supervisors: 0 (baseline), 1, 4, 9
+- Run length: 10000 time units
+- Noise level: 0, 0.25, 0.5, 0.75, 1
+- Simulations: 30 (for mean/variance plot)
+- Primary measure of performance: area under the learning curve (AUC)
