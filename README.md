@@ -63,6 +63,7 @@ Summary of the parameters and components provided in the paper to implement the 
 
 
 # Meeting Decisions
+- Next Milestone: Afternoon December 30
 - Coding Scala, Akka framework
 - Quentin: presentation, load-balancing
 - Matthias: presentation, load-balancing
