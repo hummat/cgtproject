@@ -1,10 +1,25 @@
 package loadbalancing
 
 import akka.actor.{Actor, ActorLogging}
-import supervisory.{Reward, State, Action}
+import supervisory.{Action, Reward, State}
 
-/** This does the loadbalancing stuff */
+import scala.collection.mutable
+
+/** This does the policy and loadbalancing stuff */
 case class Worker() {
+  var routingQueue = mutable.Queue.empty[Task]
+  var processingQueue = mutable.Queue.empty[Task]
+  def enqueue(task: Task) = routingQueue.enqueue(task)
+
+  def clock: Unit = {
+    var step = 0
+    while(true) {
+      // routing and processing decisions???
+
+      Thread.sleep(1000)
+      step += 1
+    }
+  }
 
 }
 
@@ -24,10 +39,15 @@ trait WorkerActor extends Actor with ActorLogging {
 
   def receive = {
     case msg => log.info("Worker receive")
+    case task: Task => worker.enqueue(task)
+    // case share: Share => incorporate shared info from supervisor
   }
 
 }
 
+case class Task(s: Integer)
+
+//Stubs (definitely not correct)
 object States {
   case object State1 extends State
   case object State2 extends State
