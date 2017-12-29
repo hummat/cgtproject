@@ -10,6 +10,10 @@ Explanation of the proposed directory structure. Feel free to change anything yo
 - report: All files needed to generate the report (figures, bibliography...)
 - assets: All additional material (referenced papers, templates, problem specification...)
 
+## Links
+Any useful link concerning the project
+- Google drive presentation: https://drive.google.com/drive/folders/1hO-E2tk2tbciudYoXAOrhl4wetixfQXs?usp=sharing
+
 ## Tasks
 Some possible tasks. Just add, change, delete whatever you see fit. I'd propose a meeting between christmas and new year to see where we all are on our tasks and if we need to put joint effort into something.
 - Writing/formatting of the report
