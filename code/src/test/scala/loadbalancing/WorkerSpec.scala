@@ -1,5 +1,0 @@
-package loadbalancing
-
-class WorkerSpec {
-
-}
