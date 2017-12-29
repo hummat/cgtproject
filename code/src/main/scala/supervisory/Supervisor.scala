@@ -8,3 +8,4 @@ trait Supervisor extends Actor with ActorLogging {
     case msg => log.info("Supervisor receive")
   }
 }
+

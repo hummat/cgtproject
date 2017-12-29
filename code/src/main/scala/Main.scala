@@ -1,4 +1,4 @@
-import akka.actor.{ActorSystem, Props}
+import akka.actor.{ActorRef, ActorSystem, Props}
 import loadbalancing.Worker
 import supervisory.{Subordinate, Supervisor}
 
@@ -10,8 +10,8 @@ object Main extends App {
 
   val system = ActorSystem("DynamicColearning")
 
-  val worker = system.actorOf(Props[WorkerNode])
   val supervisor = system.actorOf(Props[SupervisorNode])
+  val worker = system.actorOf(Props(classOf[WorkerNode], supervisor))
 
   worker ! BlankMessage
   supervisor ! BlankMessage
@@ -20,7 +20,7 @@ object Main extends App {
 }
 
 /** Concretized worker */
-case class WorkerNode() extends Worker with Subordinate {
+case class WorkerNode(supervisor: ActorRef) extends Worker with Subordinate {
   override def receive =
     super[Worker].receive andThen super[Subordinate].receive
 }
