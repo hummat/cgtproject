@@ -14,16 +14,23 @@ Explanation of the proposed directory structure. Feel free to change anything yo
 Any useful link concerning the project
 - Google drive presentation: https://drive.google.com/drive/folders/1hO-E2tk2tbciudYoXAOrhl4wetixfQXs?usp=sharing
 
+## Group decisions
+The decision made in group meetings that define the project approach
+- Programming language: Scala (with Akka framework)
+- Next meating: 30.01.2017, afternoon
+
 ## Tasks
 Some possible tasks. Just add, change, delete whatever you see fit. I'd propose a meeting between christmas and new year to see where we all are on our tasks and if we need to put joint effort into something.
 - Writing/formatting of the report
-  - Responsible: Matthias (?)
+  - Responsible: Everyone for their individual part
   - Deadline: 08.01.2018
 - Write code to reproduce results from the papes
   - Responsible:
+    - Quentin, Matthias: Load balancing
+    - Steve, Fabian: Supervisory structure
   - Deadline: 05.01.2018 (?)
 - Reproduce figures from the paper
-  - Responsible: Matthias (?)
+  - Responsible: Matthias
   - Deadline: 05.01.2018 (?)
 - Additional work extending the paper to gain extra points:
   - Responsible:
@@ -64,13 +71,3 @@ Summary of the parameters and components provided in the paper to implement the 
 - Noise level: 0, 0.25, 0.5, 0.75, 1
 - Simulations: 30 (for mean/variance plot)
 - Primary measure of performance: area under the learning curve (AUC)
-
-
-# Meeting Decisions
-- Next Milestone: Afternoon December 30
-- Coding Scala, Akka framework
-- Quentin: presentation, load-balancing
-- Matthias: presentation, load-balancing
-- Steve: supervisory structure
-- Fabian: supervisory structure
-
