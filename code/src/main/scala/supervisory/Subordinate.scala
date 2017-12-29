@@ -2,9 +2,10 @@ package supervisory
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
 
-trait Subordinate extends Actor with ActorLogging {
+trait SubordinateActor extends Actor with ActorLogging {
 
   val supervisor: ActorRef
+
   // These feel incorrect
   var step: Integer
   var state: State

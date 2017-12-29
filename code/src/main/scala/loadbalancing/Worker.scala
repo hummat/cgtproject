@@ -3,7 +3,13 @@ package loadbalancing
 import akka.actor.{Actor, ActorLogging}
 import supervisory.{Reward, State, Action}
 
-trait Worker extends Actor with ActorLogging {
+/** This does the loadbalancing stuff */
+case class Worker() {
+
+}
+
+/** This does the actor stuff */
+trait WorkerActor extends Actor with ActorLogging {
   import States._
   import Actions._
   import Rewards._
@@ -13,6 +19,8 @@ trait Worker extends Actor with ActorLogging {
   var action: Action = Action1
   var next: State = State2
   var reward: Reward = Reward1
+
+  val worker = Worker()
 
   def receive = {
     case msg => log.info("Worker receive")

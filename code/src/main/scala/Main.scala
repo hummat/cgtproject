@@ -1,6 +1,6 @@
 import akka.actor.{ActorRef, ActorSystem, Props}
-import loadbalancing.Worker
-import supervisory.{Subordinate, Supervisor}
+import loadbalancing.WorkerActor
+import supervisory.{SubordinateActor, SupervisorActor}
 
 /**
   * Main entry point
@@ -20,13 +20,15 @@ object Main extends App {
 }
 
 /** Concretized worker */
-case class WorkerNode(supervisor: ActorRef) extends Worker with Subordinate {
+case class WorkerNode(supervisor: ActorRef)
+  extends WorkerActor with SubordinateActor {
+
   override def receive =
-    super[Worker].receive andThen super[Subordinate].receive
+    super[WorkerActor].receive andThen super[SubordinateActor].receive
 }
 
 /** Concretized supervisor */
-case class SupervisorNode() extends Supervisor
+case class SupervisorNode() extends SupervisorActor
 
 /** Different types of messages to be sent */
 object Message {
