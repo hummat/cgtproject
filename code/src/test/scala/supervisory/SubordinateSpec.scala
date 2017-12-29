@@ -1,0 +1,5 @@
+package supervisory
+
+class SubordinateSpec {
+
+}
