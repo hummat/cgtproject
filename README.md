@@ -74,4 +74,5 @@ Summary of the parameters and components provided in the paper to implement the 
 
 ## Load Balancing Insights
 > When the task has finally been completed, agents receive a signal propagated back through the routing channel that they can use to update their service time based on how long the forwarded task took to complete.
+
 This just means that when the task is done, whoever ended up with it has to alert the automated task creator with the actual completion time.
