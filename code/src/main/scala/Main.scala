@@ -1,5 +1,5 @@
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
-import loadbalancing.WorkerActor
+import loadbalancing.{Task, WorkerActor}
 import supervisory.{SubordinateActor, SupervisorActor}
 
 /**
@@ -8,7 +8,7 @@ import supervisory.{SubordinateActor, SupervisorActor}
 object Main extends App {
   import Message._
 
-  val system = ActorSystem("DynamicColearning")
+  val system = ActorSystem("s")
 
   val tasker = system.actorOf(Props[Tasker],
     "tasker")
@@ -21,8 +21,9 @@ object Main extends App {
     Props(classOf[WorkerNode], supervisor, List("worker1")),
     "worker2")
 
-  worker1 ! BlankMessage
-  supervisor ! BlankMessage
+//  worker1 ! BlankMessage
+//  supervisor ! BlankMessage
+  worker1 ! Task("1", 2, 0)
 
   system.terminate()
 }
@@ -39,7 +40,9 @@ case class WorkerNode(supervisor: ActorRef, neighborNames: List[String])
 case class SupervisorNode() extends SupervisorActor
 
 case class Tasker() extends Actor with ActorLogging {
-  def receive: Receive = PartialFunction.empty
+  def receive = {
+    case Task(id, s, c) => log.info(s"Task $id with s=$s done with c=$c")
+  }
 }
 
 /** Different types of messages to be sent */

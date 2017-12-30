@@ -4,6 +4,7 @@ import akka.actor.{Actor, ActorLogging, ActorSelection}
 import supervisory._
 
 import scala.concurrent.duration._
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /** This does the policy and loadbalancing stuff */
 case class Worker(neighbors: List[ActorSelection]) {
@@ -17,7 +18,8 @@ case class Worker(neighbors: List[ActorSelection]) {
 
   var step = 0 // counts how many actions have been performed
 
-  def serviceTime = procQ.map(task => task.s).sum.toDouble / procQ.length
+  def serviceTime = (0.0 /: procQ) (_ + _.s) / procQ.length
+//  def serviceTime = procQ.map(task => task.s).sum.toDouble / procQ.length
 
   def increment = step += 1
 
@@ -62,8 +64,8 @@ trait WorkerActor extends Actor with ActorLogging {
   def receive = {
 
     case Tick => {
-      if (worker hasWork) worker work
-      if (worker isDone) tasker ! (worker completeTask)
+      if (worker hasWork) { worker work }
+      if (worker isDone) { tasker ! (worker completeTask) }
     }
 
     case task: Task => {
