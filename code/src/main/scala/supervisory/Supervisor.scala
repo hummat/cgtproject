@@ -9,7 +9,6 @@ case class Supervisor() {
 
   def add(actor: ActorRef, experiences: List[Experience]) =
     neighborhood += (actor -> experiences)
-
 }
 
 /** This does the actor stuff */

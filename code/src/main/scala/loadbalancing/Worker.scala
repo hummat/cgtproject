@@ -14,29 +14,29 @@ case class Worker(neighbors: List[ActorSelection]) {
 //  var routeQ= Queue.empty[Task]
 //  def enqueue(task: Task) = routeQ.enqueue(task)
 
-  var procQ= List.empty[Task]
+  var process= List.empty[Task]
 
   var step = 0 // counts how many actions have been performed
 
-  def serviceTime = (0.0 /: procQ) (_ + _.s) / procQ.length
-//  def serviceTime = procQ.map(task => task.s).sum.toDouble / procQ.length
+  def serviceTime = (0.0 /: process) (_ + _.s) / process.length
+//  def serviceTime = process.map(task => task.s).sum.toDouble / process.length
 
   def increment = step += 1
 
-  def hasWork = !procQ.isEmpty
+  def hasWork = !process.isEmpty
 
   def work = {
-    val curr = procQ.head
-    procQ = Task(curr.id, curr.s - 1, curr.c) :: procQ.tail
-    procQ = procQ.map(task => Task(task.id, task.s, task.c + 1))
+    val curr = process.head
+    process = Task(curr.id, curr.s - 1, curr.c) :: process.tail
+    process = process.map(task => Task(task.id, task.s, task.c + 1))
   }
 
-  def isDone = procQ.head.s == 0
+  def isDone = process.head.s == 0
 
   def completeTask =
-    procQ splitAt 1 match { case (done, rest) => procQ = rest; done }
+    process splitAt 1 match { case (done, rest) => process = rest; done }
 
-  def takeNewTask(task: Task) = procQ = (task :: procQ.reverse).reverse
+  def takeNewTask(task: Task) = process = (task :: process.reverse).reverse
 
   //TODO: Implement decision-making
   def decideAction = Process
@@ -50,13 +50,13 @@ trait WorkerActor extends Actor with ActorLogging {
   lazy val neighbors = neighborNames.map(name =>
     context.system.actorSelection(s"/user/$name"))
 
-  // tasker is the arbitrary task creator
-  val tasker = context.system.actorSelection("/user/tasker")
+  // environment is the arbitrary task creator
+  val environment = context.system.actorSelection("/user/environment")
 
   // worker logic
   lazy val worker = Worker(neighbors)
 
-  // processing clock
+  // process clock
   context.system.scheduler.schedule(
     initialDelay = 1 seconds, interval = 1 seconds, self, Tick
   )
@@ -67,7 +67,7 @@ trait WorkerActor extends Actor with ActorLogging {
       if (worker hasWork) {
         worker work;
         if (worker isDone) {
-          tasker ! (worker completeTask).head
+          environment ! (worker completeTask).head
         }
       }
     }

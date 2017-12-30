@@ -10,8 +10,8 @@ object Main extends App {
 
   val system = ActorSystem("s")
 
-  val tasker = system.actorOf(Props[Tasker],
-    "tasker")
+  val environment = system.actorOf(Props[Environment],
+    "environment")
   val supervisor = system.actorOf(Props[SupervisorNode],
     "supervisor1")
   val worker1 = system.actorOf(
@@ -43,9 +43,9 @@ case class WorkerNode(supervisor: ActorRef, neighborNames: List[String])
 /** Concretized supervisor */
 case class SupervisorNode() extends SupervisorActor
 
-case class Tasker() extends Actor with ActorLogging {
+case class Environment() extends Actor with ActorLogging {
   def receive = {
-    case task: Task => log.info("Tasker received " + task.toString)
+    case task: Task => log.info("Environment received " + task.toString)
   }
 }
 
