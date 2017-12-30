@@ -27,7 +27,7 @@ object Main extends App {
 case class WorkerNode(supervisor: ActorRef)
   extends WorkerActor with SubordinateActor {
 
-  override def receive =
+  override def receive: Receive =
     super[WorkerActor].receive andThen super[SubordinateActor].receive
 }
 
@@ -35,7 +35,7 @@ case class WorkerNode(supervisor: ActorRef)
 case class SupervisorNode() extends SupervisorActor
 
 case class Tasker() extends Actor with ActorLogging {
-  def receive = PartialFunction.empty
+  def receive: Receive = PartialFunction.empty
 }
 
 /** Different types of messages to be sent */
