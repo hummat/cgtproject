@@ -21,9 +21,9 @@ object Main extends App {
     Props(classOf[WorkerNode], supervisor, List("worker1")),
     "worker2")
 
-  worker1 ! Task("1", 3, 0)
-  worker1 ! Task("2", 2, 0)
-  worker1 ! Task("3", 3, 0)
+  worker1 ! Task(id = "1", step = 1, s = 3, c = 0)
+  worker1 ! Task(id = "2", step = 1, s = 2, c = 0)
+  worker1 ! Task(id = "3", step = 1, s = 3, c = 0)
 
   Thread.sleep(10000)
   system.terminate()

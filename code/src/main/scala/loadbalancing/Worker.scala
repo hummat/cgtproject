@@ -33,19 +33,15 @@ case class Worker(neighbors: List[ActorSelection]) {
 
   var process= List.empty[Task]
 
-  var step = 0 // counts how many actions have been performed
-
   def serviceTime = (0.0 /: process) (_ + _.s) / process.length
 //  def serviceTime = process.map(task => task.s).sum.toDouble / process.length
-
-  def increment = step += 1
 
   def hasWork = !process.isEmpty
 
   def work = {
     val curr = process.head
-    process = Task(curr.id, curr.s - 1, curr.c) :: process.tail
-    process = process.map(task => Task(task.id, task.s, task.c + 1))
+    process = curr.copy(s = curr.s - 1) :: process.tail
+    process = process.map(task => task.copy(c = task.c + 1))
   }
 
   def isDone = process.head.s == 0
@@ -117,17 +113,16 @@ trait WorkerActor extends Actor with ActorLogging {
 
     case task: Task => {
       val current = worker.serviceTime
-      worker.increment
 
       if(worker.decideAction == Process) { // Process the task
         worker.takeNewTask(task)
         // Send the reward signal to yourself
         self ! Act(
-          worker step, current, Process, worker serviceTime, 1 / current)
+          task step, current, Process, worker serviceTime, 1 / current)
       } else { // Route the task
         val neighbor = worker.decideNeighbor
         // Route message retrieves reward signal
-        neighbor ! Route(worker step, current)
+        neighbor ! Route(task step, current)
         // Task message actually routes the Task
         neighbor ! task
       }
@@ -149,7 +144,7 @@ trait WorkerActor extends Actor with ActorLogging {
 }
 
 // Load-Balancing Messages
-case class Task(id: String, s: Integer, c: Integer)
+case class Task(id: String, step: Integer, s: Integer, c: Integer)
 object Tick
 case class Route(step: Integer, serviceTime: Double)
 case class Act(step: Integer,
