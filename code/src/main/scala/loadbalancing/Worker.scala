@@ -3,6 +3,7 @@ package loadbalancing
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection}
 import supervisory._
 
+import scala.concurrent.Await
 import scala.concurrent.duration._
 import scala.concurrent.ExecutionContext.Implicits.global
 
@@ -15,19 +16,22 @@ case class Worker(neighbors: List[ActorSelection]) {
 //  def enqueue(task: Task) = routeQ.enqueue(task)
 
   var q = collection.mutable.Map.empty[ActorRef, Double]
-  var timesSelected = collection.mutable.Map.empty[ActorRef, Double]
+
+  for (actorSelection <- neighbors) {
+    val feature = actorSelection.resolveOne(100000 milli);
+    feature map{
+      actorRef => {q += actorRef -> 0.0}
+    }
+    Await.result(feature, 100000 milli)
+  }
 
   def updateQ(actor: ActorRef, reward: Double) = {
-    if(timesSelected.contains(actor))
-      timesSelected += actor -> (timesSelected(actor) +  1);
-    else
-      timesSelected += actor -> 1;
 
     var qCurrentValue = 0.0;
     if(q.contains(actor))
       qCurrentValue = q(actor);
 
-    val updated = qCurrentValue + ((reward - qCurrentValue) / timesSelected(actor))
+    val updated = qCurrentValue + ((reward - qCurrentValue) * 0.1)// gama = 0.1
     q += actor -> updated
   }
 
@@ -55,7 +59,6 @@ case class Worker(neighbors: List[ActorSelection]) {
   def decideAction = Process
   def decideNeighbor: ActorRef ={
     val probabilities = getProbabilities;
-    println(probabilities)
     val random = new scala.util.Random;
     val randomNum = random nextDouble;
     var sum = 0.0;
@@ -71,13 +74,16 @@ case class Worker(neighbors: List[ActorSelection]) {
   def getProbabilities: collection.mutable.Map[ActorRef, Double] = {
     val estimatedExponential = collection.mutable.Map.empty[ActorRef, Double]
     var sum = 0.0;
-    var i = 0
     for ((key ,value) <- q) {
-      estimatedExponential(key) = scala.math.exp((value / 1.0)); //tau = 1.0
+      estimatedExponential(key) = scala.math.exp((value / 0.1)); //tau = 0.1
       sum = sum + estimatedExponential(key);
     }
 
-    return estimatedExponential map {case (key, value) => (key, value /sum)}
+    return estimatedExponential map {
+      case (key, value) =>{
+        (key, value /sum)
+      }
+    }
   }
 
 }
