@@ -21,9 +21,6 @@ object Main extends App {
     Props(classOf[WorkerNode], supervisor, List("worker1")),
     "worker2")
 
-//  worker1 ! BlankMessage
-//  supervisor ! BlankMessage
-
   worker1 ! Task("1", 3, 0)
   worker1 ! Task("2", 2, 0)
   worker1 ! Task("3", 3, 0)

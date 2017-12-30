@@ -1,6 +1,6 @@
 package loadbalancing
 
-import akka.actor.{Actor, ActorLogging, ActorSelection}
+import akka.actor.{Actor, ActorLogging, ActorRef, ActorSelection}
 import supervisory._
 
 import scala.concurrent.duration._
@@ -13,6 +13,13 @@ case class Worker(neighbors: List[ActorSelection]) {
   // Should routing cost 0 service time? I think yes.
 //  var routeQ= Queue.empty[Task]
 //  def enqueue(task: Task) = routeQ.enqueue(task)
+
+  var q = collection.mutable.Map.empty[ActorRef, Double]
+
+  def updateQ(actor: ActorRef, reward: Double) = {
+    val update = reward // do stuff here
+    q += actor -> update
+  }
 
   var process= List.empty[Task]
 
@@ -96,6 +103,7 @@ trait WorkerActor extends Actor with ActorLogging {
 
     case Act(step, current, action, next, reward) =>
       // Send it over to the supervisory portion
+      worker updateQ(sender, reward)
 
       self ! Experience(
         step, ServiceTime(current), action, ServiceTime(next), InverseService(reward))
