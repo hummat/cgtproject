@@ -1,4 +1,4 @@
-name := "akka-quickstart-scala"
+name := "dynamic-colearning"
 
 version := "1.0"
 
