@@ -23,8 +23,10 @@ object Main extends App {
 
 //  worker1 ! BlankMessage
 //  supervisor ! BlankMessage
-  val task = Task("1", 2, 0)
-  worker1 ! task
+
+  worker1 ! Task("1", 3, 0)
+  worker1 ! Task("2", 2, 0)
+  worker1 ! Task("3", 3, 0)
 
   Thread.sleep(10000)
   system.terminate()
