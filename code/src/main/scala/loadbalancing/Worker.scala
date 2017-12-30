@@ -1,7 +1,7 @@
 package loadbalancing
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import supervisory.{Action, Reward, State}
+import supervisory._
 
 import scala.concurrent.duration._
 
@@ -14,7 +14,11 @@ case class Worker() {
 
   var procQ= List.empty[Task]
 
+  var step = 0 // counts how many actions have been performed
+
   def serviceTime = procQ.map(task => task.s).sum.toDouble / procQ.length
+
+  def increment = step += 1
 
   def hasWork = !procQ.isEmpty
 
@@ -42,10 +46,10 @@ trait WorkerActor extends Actor with ActorLogging {
   // Initial Placeholder values
   // Not sure if having the 'experience' like this makes sense
   var step: Integer = 0
-  var state: State = ProcessLength(0)
+  var state: State = ServiceTime(0)
   var action: Action = Process
-  var next: State = ProcessLength(0)
-  var reward: Reward = InverseLength(0)
+  var next: State = ServiceTime(0)
+  var reward: Reward = InverseService(0)
 
   val worker = Worker()
 
@@ -59,8 +63,31 @@ trait WorkerActor extends Actor with ActorLogging {
       if (worker isDone) tasker ! (worker completeTask)
     }
     case task: Task => {
-      // Decide to route or process here
-      worker.takeNewTask(task) // for now always process
+      val current = worker.serviceTime
+      worker.increment
+
+      //TODO: Decide to route or process here
+      if(true) { //for now always Process
+        worker.takeNewTask(task)
+        self ! Act(worker step,
+          current,
+          Process,
+          worker serviceTime,
+          1 / current
+        )
+      } else {
+//        other ! Route(worker step, current)
+      }
+    }
+    // for now this just handles Process actions
+    case Act(step, current, action, next, reward) => {
+      // Send it over to the supervisory portion
+      self ! Experience(step,
+        ServiceTime(current),
+        action,
+        ServiceTime(next),
+        InverseService(reward)
+      )
     }
     case msg => log.info("Worker Fallthrough")
   }
@@ -69,10 +96,16 @@ trait WorkerActor extends Actor with ActorLogging {
 // Load-Balancing Messages
 case class Task(id: String, s: Integer, c: Integer)
 object Tick
-case class Service(s: Integer) // sent during a route
+//case class Route(step: Integer, serviceTime: Double)
+// sent during a route
+case class Act(step: Integer,
+               serviceTime: Double,
+               action: Action,
+               nextServiceTime: Double,
+               reward: Double)
 
 // Load-Balancing Implementations of State, Action, Reward
-case class ProcessLength(length: Integer) extends State
-case class InverseLength(reward: Double) extends Reward
-case class  Route(neighbor: ActorRef) extends Action
+case class ServiceTime(length: Double) extends State
+case class InverseService(reward: Double) extends Reward
+case class Route(neighbor: ActorRef) extends Action
 object Process extends Action
