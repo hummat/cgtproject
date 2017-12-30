@@ -64,8 +64,12 @@ trait WorkerActor extends Actor with ActorLogging {
   def receive = {
 
     case Tick => {
-      if (worker hasWork) { worker work }
-      if (worker isDone) { tasker ! (worker completeTask) }
+      if (worker hasWork) {
+        worker work;
+        if (worker isDone) {
+          tasker ! (worker completeTask).head
+        }
+      }
     }
 
     case task: Task => {
@@ -92,6 +96,7 @@ trait WorkerActor extends Actor with ActorLogging {
 
     case Act(step, current, action, next, reward) =>
       // Send it over to the supervisory portion
+
       self ! Experience(
         step, ServiceTime(current), action, ServiceTime(next), InverseService(reward))
 

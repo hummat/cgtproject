@@ -23,8 +23,10 @@ object Main extends App {
 
 //  worker1 ! BlankMessage
 //  supervisor ! BlankMessage
-  worker1 ! Task("1", 2, 0)
+  val task = Task("1", 2, 0)
+  worker1 ! task
 
+  Thread.sleep(10000)
   system.terminate()
 }
 
@@ -41,7 +43,7 @@ case class SupervisorNode() extends SupervisorActor
 
 case class Tasker() extends Actor with ActorLogging {
   def receive = {
-    case Task(id, s, c) => log.info(s"Task $id with s=$s done with c=$c")
+    case task: Task => log.info("Tasker received " + task.toString)
   }
 }
 

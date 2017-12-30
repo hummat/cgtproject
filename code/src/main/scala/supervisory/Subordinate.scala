@@ -13,7 +13,7 @@ trait SubordinateActor extends Actor with ActorLogging {
       acc.add(experience)
       if (acc isFull) supervisor ! Episode(acc.transfer)
     }
-    case msg => log.info("Subordinate Fallthrough")
+    case msg => //log.info("Subordinate Fallthrough")
   }
 }
 
