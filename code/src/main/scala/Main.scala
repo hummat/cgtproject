@@ -14,17 +14,21 @@ object Main extends App {
     "tasker")
   val supervisor = system.actorOf(Props[SupervisorNode],
     "supervisor1")
-  val worker = system.actorOf(Props(classOf[WorkerNode], supervisor),
+  val worker1 = system.actorOf(
+    Props(classOf[WorkerNode], supervisor, List("worker2")),
     "worker1")
+  val worker2 = system.actorOf(
+    Props(classOf[WorkerNode], supervisor, List("worker1")),
+    "worker2")
 
-  worker ! BlankMessage
+  worker1 ! BlankMessage
   supervisor ! BlankMessage
 
   system.terminate()
 }
 
 /** Concretized worker */
-case class WorkerNode(supervisor: ActorRef)
+case class WorkerNode(supervisor: ActorRef, neighborNames: List[String])
   extends WorkerActor with SubordinateActor {
 
   override def receive: Receive =
