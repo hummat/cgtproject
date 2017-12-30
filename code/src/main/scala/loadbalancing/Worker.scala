@@ -15,10 +15,20 @@ case class Worker(neighbors: List[ActorSelection]) {
 //  def enqueue(task: Task) = routeQ.enqueue(task)
 
   var q = collection.mutable.Map.empty[ActorRef, Double]
+  var timesSelected = collection.mutable.Map.empty[ActorRef, Double]
 
   def updateQ(actor: ActorRef, reward: Double) = {
-    val update = reward // do stuff here
-    q += actor -> update
+    if(timesSelected.contains(actor))
+      timesSelected += actor -> (timesSelected(actor) +  1);
+    else
+      timesSelected += actor -> 1;
+
+    var qCurrentValue = 0.0;
+    if(q.contains(actor))
+      qCurrentValue = q(actor);
+
+    val updated = qCurrentValue + ((reward - qCurrentValue) / timesSelected(actor))
+    q += actor -> updated
   }
 
   var process= List.empty[Task]
@@ -47,7 +57,33 @@ case class Worker(neighbors: List[ActorSelection]) {
 
   //TODO: Implement decision-making
   def decideAction = Process
-  def decideNeighbor = neighbors.head
+  def decideNeighbor: ActorRef ={
+    val probabilities = getProbabilities;
+    println(probabilities)
+    val random = new scala.util.Random;
+    val randomNum = random nextDouble;
+    var sum = 0.0;
+    for ((key ,value) <- probabilities) {
+      sum =  sum + value;
+      if (randomNum <= sum) {
+        return key;
+      }
+    }
+    return ActorRef.noSender;
+  }
+
+  def getProbabilities: collection.mutable.Map[ActorRef, Double] = {
+    val estimatedExponential = collection.mutable.Map.empty[ActorRef, Double]
+    var sum = 0.0;
+    var i = 0
+    for ((key ,value) <- q) {
+      estimatedExponential(key) = scala.math.exp((value / 1.0)); //tau = 1.0
+      sum = sum + estimatedExponential(key);
+    }
+
+    return estimatedExponential map {case (key, value) => (key, value /sum)}
+  }
+
 }
 
 /** This does the actor stuff */
