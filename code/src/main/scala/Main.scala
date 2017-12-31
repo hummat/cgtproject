@@ -10,6 +10,13 @@ object Main extends App {
 
   val system = ActorSystem("s")
 
+  val graph = List( // vertex -> edges
+    1 -> (2,3,4),
+    2 -> (1,3,4),
+    3 -> (1,2,4),
+    4 -> (2,3,4)
+  )
+
   val environment = system.actorOf(Props[Environment],
     "environment")
   val supervisor = system.actorOf(Props[SupervisorNode],

@@ -5,10 +5,16 @@ import akka.actor.{Actor, ActorLogging, ActorRef}
 /** This composes the supervising computation */
 case class Supervisor() {
 
-  var neighborhood = Map.empty[ActorRef, List[Experience]]
+  var subordinates = Map.empty[ActorRef, List[Experience]]
 
   def add(actor: ActorRef, experiences: List[Experience]) =
-    neighborhood += (actor -> experiences)
+    subordinates += (actor -> experiences)
+
+  def test = {
+    val subordinate = subordinates.head._1
+    subordinate
+  }
+
 }
 
 /** This does the actor stuff */
