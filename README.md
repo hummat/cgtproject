@@ -86,3 +86,8 @@ This works as follows:
 4. When the simulation terminates, find the minimum of the computed means and subract it from all means (this lowers the curve onto the x-axis)
 5. Apply an exponential moving average (https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average) onto the resulting curve to smooth it
 6. Compute the area under this curve
+
+### Cheaters
+> The template we propose to perform this transformation is to use a summarization routine accepting a time k, a reference agent i, and a set of d agents in i’s neighborhood, and returning a context feature vector V_i_tk.
+
+The summarization routine is supposed to be problem-agnostic, but they are explicitly taking problem-domain information in the form of 'neighborhood agents' as part of their summarization routine.  Should we do it right and only utilize the agent's experiences or cheat like them and feed problem-domain info?
