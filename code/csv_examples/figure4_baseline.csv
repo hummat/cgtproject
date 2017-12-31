@@ -12,9 +12,9 @@ AUC10	AUC10	AUC10	AUC10	AUC10	AUC10	AUC10	AUC10
 
 AUC* = Area Under the learning Curve for trial 1 to 10 (pure load-balancing without supervisor for varying window size K).
 
-COMPUTATION
+COMPUTATION (A more detailed explanation can be found on GitHub)
 For each trial 1 to 10 and each value K:
-1. Run trial for 10000 time steps and record, for each time step, the mean service time over all tasks completed in the time window K.
+1. Run trial for 10000 time steps and record, for each time step, the summed service time over all tasks completed in the time window K.
    (Example for K=50 with s** = service time for each individual task completed at each time step 1 to 50:
    mean_service_time(K=50) = [s11 +  s12 + s13 + s21 + s22 + s31 + s32 + s33 + s34 + ... + s501] / 50)
 2. Find minimum mean_service_time and subtract it from all other means (which "lowers" the curve onto the x-axis)
