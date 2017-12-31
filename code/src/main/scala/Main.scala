@@ -1,5 +1,5 @@
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
-import loadbalancing.{Task, WorkerActor}
+import loadbalancing.{BossActor, Task, WorkerActor}
 import supervisory.{SubordinateActor, SupervisorActor}
 
 /**
@@ -45,7 +45,11 @@ case class WorkerNode(supervisor: ActorRef, neighborNames: List[String])
 }
 
 /** Concretized supervisor */
-case class SupervisorNode() extends SupervisorActor
+case class SupervisorNode() extends BossActor with SupervisorActor {
+
+  override def receive: Receive =
+    super[BossActor].receive andThen super[SupervisorActor].receive
+}
 
 case class Environment() extends Actor with ActorLogging {
   def receive = {

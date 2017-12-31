@@ -8,14 +8,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 /** This does the policy and loadbalancing stuff */
-// neighbors include self
 case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
 
-  // do we need a routeQ? Just handle immediately??
-  // Should routing cost 0 service time? I think yes.
-//  var routeQ= Queue.empty[Task]
-//  def enqueue(task: Task) = routeQ.enqueue(task)
-
+  var process= List.empty[Task]
   var q = (selfAS :: neighbors).map(neighbor => neighbor -> 0.0).toMap
   val gamma = 0.1
   val tau = 1
@@ -25,9 +20,13 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
     q = q + (actor -> (current + gamma * (reward - current)))
   }
 
-  var process= List.empty[Task]
-
   def serviceTime = (0.0 /: process) (_ + _.s) / process.length
+
+  // TODO: implement environmentRate
+  def environmentRate = ??? // derivative of tasks from environment
+
+  // TODO: implement agentRate
+  def agentRate = ??? // derivative of tasks from other agents
 
   def hasWork = !process.isEmpty
 
@@ -117,9 +116,17 @@ trait WorkerActor extends Actor with ActorLogging {
       self ! Experience(
         step, ServiceTime(current), action, ServiceTime(next), InverseService(reward))
 
+    case LoadRequest => sender ! Load(worker serviceTime)
+    case NeighborRequest => sender ! Neighbors(worker neighbors)
     case msg => log.info("Worker Fallthrough")
   }
 }
+
+// Boss Messages
+object LoadRequest
+case class Load(serviceTime: Double)
+object NeighborRequest
+case class Neighbors(neighbors: List[ActorSelection])
 
 // Load-Balancing Messages
 case class Task(id: String, step: Integer, s: Integer, c: Integer)

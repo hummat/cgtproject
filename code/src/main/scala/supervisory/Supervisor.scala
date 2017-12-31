@@ -1,30 +1,52 @@
 package supervisory
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
+import supervisory.Supervisor.DistanceFns
+
+object Supervisor {
+  type DistanceFns =
+    Map[Context, (ContextFeature, ContextFeature) => Double]
+}
 
 /** This composes the supervising computation */
-case class Supervisor() {
+case class Supervisor(distanceFns: DistanceFns){
 
-  var subordinates = Map.empty[ActorRef, List[Experience]]
+  var experiences = Map.empty[ActorRef, List[Experience]]
+  var contextFeatures = Map.empty[ActorRef, List[ContextFeature]]
 
-  def add(actor: ActorRef, experiences: List[Experience]) =
-    subordinates += (actor -> experiences)
+  def addExperiences(actor: ActorRef,
+                     actorExperiences: List[Experience]) =
+    experiences = experiences + (actor -> actorExperiences)
 
-  def test = {
-    val subordinate = subordinates.head._1
-    subordinate
-  }
+  def addContextFeatures(actor: ActorRef,
+                         actorContextFeatures: List[ContextFeature]) =
+    contextFeatures = contextFeatures + (actor -> actorContextFeatures)
+
+  def assessSimilarity = ???
 
 }
 
 /** This does the actor stuff */
 trait SupervisorActor extends Actor with ActorLogging {
 
-  val supervisor = Supervisor()
+  val distanceFns: DistanceFns
+
+  lazy val supervisor = Supervisor(distanceFns)
 
   def receive = {
-    case Episode(experiences) => supervisor.add(sender, experiences)
+    case Episode(experiences) =>
+      supervisor.addExperiences(sender, experiences)
+    case ContextVector(agent, vector) =>
+      supervisor.addContextFeatures(agent, vector)
     case msg => log.info("Supervisor receive")
   }
 }
 
+case class Calculate(actor: ActorRef, experiences: List[Experience])
+
+trait ContextFeature
+trait Context {
+  def distanceFn(x: ContextFeature, y: ContextFeature): Double
+}
+
+case class ContextVector(agent: ActorRef, vector: List[ContextFeature])
