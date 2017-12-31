@@ -1,0 +1,23 @@
+K50	K75	K100	K125	K200	K300	K400	K500
+AUC1	AUC1	AUC1	AUC1	AUC1	AUC1	AUC1	AUC1
+AUC2	AUC2	AUC2	AUC2	AUC2	AUC2	AUC2	AUC2		
+AUC3	AUC3	AUC3	AUC3	AUC3	AUC3	AUC3	AUC3
+AUC4	AUC4	AUC4	AUC4	AUC4	AUC4	AUC4	AUC4
+AUC5	AUC5	AUC5	AUC5	AUC5	AUC5	AUC5	AUC5
+AUC6	AUC6	AUC6	AUC6	AUC6	AUC6	AUC6	AUC6
+AUC7	AUC7	AUC7	AUC7	AUC7	AUC7	AUC7	AUC7
+AUC8	AUC8	AUC8	AUC8	AUC8	AUC8	AUC8	AUC8
+AUC9	AUC9	AUC9	AUC9	AUC9	AUC9	AUC9	AUC9
+AUC10	AUC10	AUC10	AUC10	AUC10	AUC10	AUC10	AUC10
+
+AUC* = Area Under the learning Curve for trial 1 to 10 (with one supervisor and varying window size K).
+
+COMPUTATION
+For each trial 1 to 10 and each value K:
+1. Run trial for 10000 time steps and record, for each time step, the mean service time over all tasks completed in the time window K.
+   (Example for K=50 with s** = service time for each individual task completed at each time step 1 to 50:
+   mean_service_time(K=50) = [s11 +  s12 + s13 + s21 + s22 + s31 + s32 + s33 + s34 + ... + s501] / 50)
+2. Find minimum mean_service_time and subtract it from all other means (which "lowers" the curve onto the x-axis)
+3. Apply exponential moving average on the resulting "learning curve".
+   (https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average)
+4. Compute area of "smoothed" curve.
