@@ -17,7 +17,7 @@ Any useful link concerning the project
 ## Group decisions
 The decision made in group meetings that define the project approach
 - Programming language: Scala (with Akka framework)
-- Next meating: 30.01.2017, afternoon
+- Next meating: 03.01.2018 (with prior discussion on slack on 02.01.2018)
 
 ## Tasks
 Some possible tasks. Just add, change, delete whatever you see fit. I'd propose a meeting between christmas and new year to see where we all are on our tasks and if we need to put joint effort into something.
@@ -25,13 +25,11 @@ Some possible tasks. Just add, change, delete whatever you see fit. I'd propose 
   - Responsible: Everyone for their individual part
   - Deadline: 08.01.2018
 - Write code to reproduce results from the papes
-  - Responsible:
-    - Quentin, Matthias: Load balancing
-    - Steve, Fabian: Supervisory structure
+  - Responsible: Steve, Fabian
   - Deadline: 05.01.2018 (?)
 - Reproduce figures from the paper
   - Responsible: Matthias
-  - Deadline: 05.01.2018 (?)
+  - Deadline: 06.01.2018 (?)
 - Additional work extending the paper to gain extra points:
   - Responsible:
   - Deadline: 05.01.2018 (?)
@@ -39,7 +37,7 @@ Some possible tasks. Just add, change, delete whatever you see fit. I'd propose 
   - Responsible:
   - Deadline: 15.01.2018
 - (PowerPoint) Presentation of our work for the exam:
-  - Responsible:
+  - Responsible: Quentin (?)
   - Deadline: 18.01.2018 (Exam is on the 19th)
 
 ## System components and parameterization
@@ -72,7 +70,19 @@ Summary of the parameters and components provided in the paper to implement the 
 - Simulations: 30 (for mean/variance plot)
 - Primary measure of performance: area under the learning curve (AUC)
 
-## Load Balancing Insights
+## Insights
+### Load Balancing
 > When the task has finally been completed, agents receive a signal propagated back through the routing channel that they can use to update their service time based on how long the forwarded task took to complete.
 
 This just means that when the task is done, whoever ended up with it has to alert the automated task creator with the actual completion time.
+
+### Area Under the learning Curve (AUC)
+> Our primary measure of performance is the area under the learning curve (AUC), which is an exponential moving average of the mean task service time over all tasks completed in the network. Before computing the area, we first “lower” this curve onto the x-axis by subtracting the minimum y-value.
+
+This works as follows:
+1. Choose learning window size K
+2. Run algorithm and record, for each time step, the sum of the service time s of all completed tasks in this time step
+3. After K time steps, take the mean of the sums computed for each time step
+4. When the simulation terminates, find the minimum of the computed means and subract it from all means (this lowers the curve onto the x-axis)
+5. Apply an exponential moving average (https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average) onto the resulting curve to smooth it
+6. Compute the area under this curve
