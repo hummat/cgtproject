@@ -86,3 +86,21 @@ This works as follows:
 4. When the simulation terminates, find the minimum of the computed means and subract it from all means (this lowers the curve onto the x-axis)
 5. Apply an exponential moving average (https://en.wikipedia.org/wiki/Moving_average#Exponential_moving_average) onto the resulting curve to smooth it
 6. Compute the area under this curve
+
+### Cheaters
+> The template we propose to perform this transformation is to use a summarization routine accepting a time k, a reference agent i, and a set of d agents in i’s neighborhood, and returning a context feature vector V_i_tk.
+
+The summarization routine is supposed to be problem-agnostic, but they are explicitly taking problem-domain information in the form of 'neighborhood agents' as part of their summarization routine.  Then, in their choice of context features, they are potentially utilizing information from outside the memory of the supervisor.  hould we do it right and only utilize the agent's experiences or cheat like them and feed problem-domain info?
+
+### Problems in Context Feature Summarization and Transformation
+
+(Referring to 6.2 Algorithms) Alright so I'm realizing that they most likely cheated in there summarization routine for the transformation of experiences to context features.  I believe they're using information gained from outside the experiences of agent i.
+
+If we limit ourselves to transforming solely from experiences:
+* Ideally, you'd be able to get all of agent i's neighbors based on the set of agents that agent i has routed to in a learning window of size K, but only if agent i routed to all of its neighbors at least once in that window.
+* If we take that subset of neighbors, and then look at the supervisor's memory for those neighbors' experiences (which we are allowed to do), we should be able to find the appropiate context features required by the paper (at least for that subset). However, agent i may be routing to a neighbor that is not also a subordinate of agent i's supervisor, meaning that neighbor won't be in the supervisor's memory.
+* Therefore, when computing context features that require information of agent i's neighbors, we can only actually utilize the subset of neighbors that: 1) agent i has routed to in this learning window, and 2) are subordinates of agent i's supervisor
+
+If we don't limit ourselves to transformating solely from experiences:
+* We can easily calculate the context features as they do in the paper, but...
+* The supervisory structure no longer becomes problem-agnostic and becomes tightly coupled with the load-balancing problem
