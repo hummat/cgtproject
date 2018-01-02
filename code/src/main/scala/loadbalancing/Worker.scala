@@ -15,6 +15,11 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
   val gamma = 0.1
   val tau = 1
 
+  var environmentTask = Task("environmentTask", 0, 0, 0)
+  var environmentRate = 0
+  var agentTask = Task("agentTask", 0, 0, 0)
+  var agentRate = 0
+
   def updateQ(actor: ActorSelection, reward: Double) = {
     val current = q.getOrElse(actor, 0.0)
     q = q + (actor -> (current + gamma * (reward - current)))
@@ -22,11 +27,17 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
 
   def serviceTime = (0.0 /: process) (_ + _.s) / process.length
 
-  // TODO: implement environmentRate
-  def environmentRate = ??? // derivative of tasks from environment
+  // backward finite difference approximation of rate of tasks from environment
+  def updateEnvironmentRate(task: Task) = {
+    environmentRate = 1 / (task.step - environmentTask.step)
+    environmentTask = task
+  }
 
-  // TODO: implement agentRate
-  def agentRate = ??? // derivative of tasks from other agents
+  // backward finite difference approximation of rate of tasks from other agents
+  def updateAgentRate(task: Task) = {
+    agentRate = 1 / (task.step - agentTask.step)
+    agentTask = task
+  }
 
   def hasWork = !process.isEmpty
 
@@ -79,18 +90,21 @@ trait WorkerActor extends Actor with ActorLogging {
 
   def receive = {
 
-    case Tick => {
+    case Tick =>
       if (worker hasWork) {
         worker work;
         if (worker isDone) {
           environment ! (worker completeTask).head
         }
       }
-    }
 
     case task: Task =>
       val current = worker.serviceTime
       val neighbor = worker.decideNeighbor
+
+      if (sender.path == environment.anchorPath)
+        worker.updateEnvironmentRate(task)
+      else worker.updateAgentRate(task)
 
       if (neighbor == selfAS) { // Process the task
         worker.takeNewTask(task)
@@ -124,6 +138,7 @@ trait WorkerActor extends Actor with ActorLogging {
     case msg => log.info("Worker Fallthrough")
   }
 }
+
 // Boss Messages
 object LoadRequest
 case class Load(serviceTime: Double)
