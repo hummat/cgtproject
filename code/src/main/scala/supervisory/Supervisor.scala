@@ -42,7 +42,8 @@ trait SupervisorActor extends Actor with ActorLogging {
   }
 }
 
-case class Calculate(actor: ActorRef, experiences: List[Experience])
+case class Calculate(actor: ActorRef)
+case class Finished(actor: ActorRef, vector: List[ContextFeature])
 
 trait ContextFeature
 trait Context {

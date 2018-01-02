@@ -118,15 +118,20 @@ trait WorkerActor extends Actor with ActorLogging {
 
     case LoadRequest => sender ! Load(worker serviceTime)
     case NeighborRequest => sender ! Neighbors(worker neighbors)
+    case EnvironmentRateRequest => sender ! Rate(worker environmentRate)
+    case AgentRateRequest => sender ! Rate(worker agentRate)
+
     case msg => log.info("Worker Fallthrough")
   }
 }
-
 // Boss Messages
 object LoadRequest
 case class Load(serviceTime: Double)
 object NeighborRequest
 case class Neighbors(neighbors: List[ActorSelection])
+object EnvironmentRateRequest
+case class Rate(rate: Double)
+object AgentRateRequest
 
 // Load-Balancing Messages
 case class Task(id: String, step: Integer, s: Integer, c: Integer)
