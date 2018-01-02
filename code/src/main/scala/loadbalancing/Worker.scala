@@ -10,6 +10,8 @@ import scala.util.Random
 /** This does the policy and loadbalancing stuff */
 case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
 
+  // need to "anonymize" neighbors to allow for experience integration
+
   var process= List.empty[Task]
   var q = (selfAS :: neighbors).map(neighbor => neighbor -> 0.0).toMap
   val gamma = 0.1
@@ -67,6 +69,11 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
     }
     q.head._1 // this should never happen
   }
+
+  def updateExperiences(experiences: List[Experience]) = {
+    // how to integrate others' experiences???
+
+  }
 }
 
 /** This does the actor stuff */
@@ -112,7 +119,6 @@ trait WorkerActor extends Actor with ActorLogging {
         self ! Act(
           task step, current, Process, worker serviceTime, 1 / current)
       } else { // Route the task
-        val neighbor = worker.decideNeighbor
         // Route message retrieves reward signal
         neighbor ! Route(task step, current)
         // Task message actually routes the Task
@@ -129,6 +135,9 @@ trait WorkerActor extends Actor with ActorLogging {
 
       self ! Experience(
         step, ServiceTime(current), action, ServiceTime(next), InverseService(reward))
+
+    case Share(experiences) =>
+      worker updateExperiences(experiences)
 
     case LoadRequest => sender ! Load(worker serviceTime)
     case NeighborRequest => sender ! Neighbors(worker neighbors)

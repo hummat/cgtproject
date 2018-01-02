@@ -9,10 +9,12 @@ trait SubordinateActor extends Actor with ActorLogging {
   val acc = ExperienceAccumulator(115)
 
   def receive = {
-    case experience: Experience => {
+    case experience: Experience =>
       acc.add(experience)
       if (acc isFull) supervisor ! Episode(acc.transfer)
-    }
+    case Episode(experiences) =>
+      self ! Share(experiences)
+
     case msg => //log.info("Subordinate Fallthrough")
   }
 }
@@ -37,3 +39,4 @@ case class Experience(step: Integer,
                       next: State,
                       reward: Reward)
 case class Episode(experiences: List[Experience])
+case class Share(experiences: List[Experience]) // unnecessary???

@@ -174,11 +174,16 @@ case class RelativeLoadActor(actor: ActorRef)
       }
   }
 }
-case class FinishedCalc(actor: ActorRef, )
 
 case class CalculateRelativeLoad(actor: ActorRef)
 case class SolutionRelativeLoad(actor: ActorRef, load: Double)
-case class RelativeLoad(load: Double) extends ContextFeature
+case class RelativeLoad(load: Double) extends ContextFeature {
+  override def distanceFrom(other: ContextFeature) = {
+    val (a, b) = (this.load, other.asInstanceOf[RelativeLoad].load)
+    import math._
+    pow(E, -abs(a - b))
+  }
+}
 object RelativeLoad extends Context {
   // x and y should be RelativeLoad (casting is bad)
   def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
@@ -188,7 +193,13 @@ object RelativeLoad extends Context {
 case class CalculateEnvironmentRate(actor: ActorRef)
 case class SolutionEnvironmentRate(actor: ActorRef,
                                    rates: Map[ActorRef, Double])
-case class EnvironmentRate(agent: ActorRef, rate: Double) extends ContextFeature
+case class EnvironmentRate(agent: ActorRef, rate: Double) extends ContextFeature {
+  override def distanceFrom(other: ContextFeature) = {
+    val (a, b) = (this.rate, other.asInstanceOf[EnvironmentRate].rate)
+    import math._
+    pow(E, -abs(a - b))
+  }
+}
 object EnvironmentRate extends Context {
   // x and y should be EnvironmentRate (casting is bad)
   def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
@@ -198,7 +209,14 @@ object EnvironmentRate extends Context {
 case class CalculateAgentRate(actor: ActorRef)
 case class SolutionAgentRate(actor: ActorRef,
                              rates: Map[ActorRef, Double])
-case class AgentRate(agent: ActorRef, rate: Double) extends ContextFeature
+case class AgentRate(agent: ActorRef, rate: Double) extends ContextFeature {
+  def distanceFrom(other: ContextFeature) = {
+//    math.abs(this.rate - other.asInstanceOf[AgentRate].rate)
+    val (a, b) = (this.rate, other.asInstanceOf[AgentRate].rate)
+    import math._
+    pow(E, -abs(a - b))
+  }
+}
 object AgentRate extends Context {
   // x and y should be AgentRate (casting is bad)
   def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
