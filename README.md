@@ -11,7 +11,7 @@ Explanation of the proposed directory structure. Feel free to change anything yo
 - assets: All additional material (referenced papers, templates, problem specification...)
 
 ## Links
-Any useful link concerning the project
+Any useful links concerning the project
 - Google drive presentation: https://drive.google.com/drive/folders/1hO-E2tk2tbciudYoXAOrhl4wetixfQXs?usp=sharing
 
 ## Group decisions
@@ -20,9 +20,12 @@ The decision made in group meetings that define the project approach
 - Next meating: 03.01.2018 (with prior discussion on slack on 02.01.2018)
 
 ## Tasks
-Some possible tasks. Just add, change, delete whatever you see fit. I'd propose a meeting between christmas and new year to see where we all are on our tasks and if we need to put joint effort into something.
 - Writing/formatting of the report
-  - Responsible: Everyone for their individual part
+  - Responsible:
+    - Steve, Fabian: Methods
+    - Matthias: Introduction (and formatting)
+    - Quentin, Matthias: Abstract, Conclusion
+    - Everyone: Results and Discussion
   - Deadline: 08.01.2018
 - Write code to reproduce results from the papes
   - Responsible: Steve, Fabian
@@ -31,13 +34,13 @@ Some possible tasks. Just add, change, delete whatever you see fit. I'd propose 
   - Responsible: Matthias
   - Deadline: 06.01.2018 (?)
 - Additional work extending the paper to gain extra points:
-  - Responsible:
+  - Responsible: Everyone
   - Deadline: 05.01.2018 (?)
 - Review article of other group:
   - Responsible:
   - Deadline: 15.01.2018
 - (PowerPoint) Presentation of our work for the exam:
-  - Responsible: Quentin (?)
+  - Responsible: Quentin
   - Deadline: 18.01.2018 (Exam is on the 19th)
 
 ## System components and parameterization
