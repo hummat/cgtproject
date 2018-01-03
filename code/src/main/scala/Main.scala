@@ -6,9 +6,8 @@ import supervisory.{SubordinateActor, SupervisorActor}
   * Main entry point
   */
 object Main extends App {
-  import Message._
 
-  val system = ActorSystem("s")
+  val system = ActorSystem("dynamicColearning")
 
   val graph = List( // vertex -> edges
     1 -> (2,3,4),
@@ -41,23 +40,18 @@ case class WorkerNode(supervisor: ActorRef, neighborNames: List[String])
   extends WorkerActor with SubordinateActor {
 
   override def receive: Receive =
-    super[WorkerActor].receive andThen super[SubordinateActor].receive
+    super[WorkerActor].receive orElse super[SubordinateActor].receive
 }
 
 /** Concretized supervisor */
 case class SupervisorNode() extends BossActor with SupervisorActor {
 
   override def receive: Receive =
-    super[BossActor].receive andThen super[SupervisorActor].receive
+    super[BossActor].receive orElse super[SupervisorActor].receive
 }
 
 case class Environment() extends Actor with ActorLogging {
   def receive = {
     case task: Task => log.info("Environment received " + task.toString)
   }
-}
-
-/** Different types of messages to be sent */
-object Message {
-  case object BlankMessage
 }

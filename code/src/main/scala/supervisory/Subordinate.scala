@@ -15,7 +15,7 @@ trait SubordinateActor extends Actor with ActorLogging {
     case Episode(experiences) =>
       self ! Share(experiences)
 
-    case msg => //log.info("Subordinate Fallthrough")
+//    case msg => log.info(s"Subordinate Fallthrough: $msg")
   }
 }
 

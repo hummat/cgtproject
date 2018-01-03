@@ -184,6 +184,14 @@ case class RelativeLoad(load: Double) extends ContextFeature {
     pow(E, -abs(a - b))
   }
 }
+//case class RelativeLoad(load: Double) extends ContextFeature2 {
+//  override type Context = this.type
+//  def distanceFrom(other: Context) = {
+//    val (a, b) = (this.load, other.load)
+//    import math._
+//    pow(E, -abs(a - b))
+//  }
+//}
 object RelativeLoad extends Context {
   // x and y should be RelativeLoad (casting is bad)
   def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
