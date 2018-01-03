@@ -1,3 +1,4 @@
+import Main.supervisor
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
 import loadbalancing.{BossActor, Task, WorkerActor}
 import supervisory.{SubordinateActor, SupervisorActor}
@@ -9,17 +10,22 @@ object Main extends App {
 
   val system = ActorSystem("dynamicColearning")
 
-  val graph = List( // vertex -> edges
-    1 -> (2,3,4),
-    2 -> (1,3,4),
-    3 -> (1,2,4),
-    4 -> (2,3,4)
+  val graph = Map( // vertex -> edges
+    1 -> List(2,3,4),
+    2 -> List(1,3,4),
+    3 -> List(1,2,4),
+    4 -> List(2,3,4)
   )
+
+
+
 
   val environment = system.actorOf(Props[Environment],
     "environment")
   val supervisor = system.actorOf(Props[SupervisorNode],
     "supervisor1")
+  var workers:List[ActorRef] = getListWorker(graph, supervisor)
+
   val worker1 = system.actorOf(
     Props(classOf[WorkerNode], supervisor, List("worker2")),
     "worker1")
@@ -33,6 +39,24 @@ object Main extends App {
 
   Thread.sleep(10000)
   system.terminate()
+
+  def getListWorker(graph: Map[Int, List[Int]], supervisor: ActorRef): List[ActorRef] = {
+    var workers: List[ActorRef] = List()
+    for(node <- graph){
+      val neighbours = node._2.map(neighbour=> getWorkerName(neighbour))
+      val name = getWorkerName(node._1)
+      val worker = system.actorOf(
+        Props(classOf[WorkerNode], supervisor, neighbours),
+        name)
+      workers ::= worker
+    }
+    workers
+  }
+
+  def getWorkerName(node: Int): String ={
+    s"worker$node"
+  }
+
 }
 
 /** Concretized worker */
