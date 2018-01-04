@@ -6,7 +6,7 @@ trait SubordinateActor extends Actor with ActorLogging {
 
   val supervisor: ActorRef
 
-  val acc = ExperienceAccumulator(115)
+  val acc = ExperienceAccumulator(10)
 
   def receive = {
     case experience: Experience =>

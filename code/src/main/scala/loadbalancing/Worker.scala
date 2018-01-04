@@ -10,17 +10,14 @@ import scala.util.Random
 /** This does the policy and loadbalancing stuff */
 case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
 
-  // need to "anonymize" forward action to allow for experience integration
-  // i.e. forward-1, forward-2, etc.
-
   var process= List.empty[Task]
   var q = (selfAS :: neighbors).map(neighbor => neighbor -> 0.0).toMap
   val gamma = 0.1
   val tau = 1
 
-  var environmentTask = Task("environmentTask", 0, 0, 0) // dummy initial
+  var environmentTask = Task("environmentTask", 0, 0, 0, 0) // dummy initial
   var environmentRate = 0.0
-  var agentTask = Task("agentTask", 0, 0, 0) // dummy initial
+  var agentTask = Task("agentTask", 0, 0, 0, 0) // dummy initial
   var agentRate = 0.0
 
   def updateQ(actor: ActorSelection, reward: Double) = {
@@ -76,7 +73,7 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
   }
 
   def updateExperiences(experiences: List[Experience]) = {
-    experiences map {
+    experiences foreach {
       case Experience(step, state, Process, next, InverseService(r)) =>
         updateQ(selfAS, r)
       case Experience(step, state, Forward(_, index), next, InverseService(r)) =>
@@ -167,7 +164,7 @@ case class Rate(rate: Double)
 object AgentRateRequest
 
 // Load-Balancing Messages
-case class Task(id: String, step: Integer, s: Integer, c: Integer)
+case class Task(id: String, step: Int, s: Int, o: Int, c: Int)
 object Tick
 case class Route(step: Integer, serviceTime: Double, index: Integer)
 case class Act(step: Integer,

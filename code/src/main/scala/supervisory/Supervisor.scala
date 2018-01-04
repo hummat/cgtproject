@@ -1,17 +1,11 @@
 package supervisory
 
 import akka.actor.{Actor, ActorLogging, ActorRef}
-import supervisory.Supervisor.DistanceFns
 
 import scala.util.Random
 
-object Supervisor {
-  type DistanceFns =
-    Map[Context, (ContextFeature, ContextFeature) => Double]
-}
-
 /** This composes the supervising computation */
-case class Supervisor(distanceFns: DistanceFns) {
+case class Supervisor() {
 
   val tau = 1
 
@@ -28,75 +22,55 @@ case class Supervisor(distanceFns: DistanceFns) {
 
   def exp(value: Double): Double = math.pow(math.E, value / tau)
 
-//  def assessSimilarity(agent: ActorRef): List[ActorRef] = {
-//
-//    //only need to do this for the input agent, not all agents
-//
-//    // calculate pairwise distances and convert to Boltzmann exponential
-//    // actor -> other -> feature -> value
-//    val m =
-//    contextFeatures map {
-//      case (actor, features) => actor -> (
-//        (contextFeatures - actor) map {
-//          case (other, otherFeatures) => other -> (
-//            if (features.length == otherFeatures.length) {
-//              features zip otherFeatures map {
-//                case (a, b) => a.context -> exp(a.distanceFrom(b))
-//              }
-//            } else Map.empty[String, Double]
-//            ).toMap
-//        }
-//        )
-//    }
-//
-//    // calculate Boltzmann sums
-//    // actor -> feature -> value
-//    var sums = Map.empty[(ActorRef, String), Double]
-//    for ((actor, others) <- m) {
-//      for ((other, features) <- others) {
-//        for ((feature, value) <- features) {
-//          sums = sums + ((actor, feature) ->
-//            (value + sums.getOrElse((actor, feature), 0)))
-//        }
-//      }
-//    }
-//
-//    // actor -> other -> feature -> probability
-//    val ps = m map {
-//      case (actor, others) => actor -> (others map {
-//        case (other, features) => other -> (features map {
-//          case (feature, value) =>
-//            val prob = value / sums.getOrElse((actor, feature), 0)
-//            feature -> prob
-//        })
-//      })
-//    }
-//
-//    // just average the probabilities for now
-//    // actor -> other -> probability
-//    val p = for ((actor, others) <- ps) yield { actor -> (
-//      for ((other, features) <- others) yield {
-//        other -> features.values.sum / features.size
-//      })
-//    }
-//
-//    // pick actors to share with
-//    val as = for ((actor, others) <- p) yield { actor -> (
-//      others filter { case (other, prob) => Random.nextDouble <= prob }
-//      map { case (other, prob) => other }
-//      toList
-//    )}
-//
-//    as(agent)
-//  }
+  def assessSimilarity(agent: ActorRef): List[ActorRef] = {
+
+    // calculate pairwise distances and convert to Boltzmann exponential
+    // actor -> other -> feature -> value
+    val agentFeatures = contextFeatures(agent).sortBy(_.context)
+    var m: Map[ActorRef, List[(String, Double)]] =
+      (contextFeatures - agent) filter {
+        case (other: ActorRef, features: List[ContextFeature]) =>
+          agentFeatures.length == features.length
+      } map {
+        case (other: ActorRef, features: List[ContextFeature]) => other -> (
+          agentFeatures zip features.sortBy(_.context) map {
+            case (a, b) => a.context -> exp(a.distanceFrom(b))
+          })
+      }
+
+    // calculate Boltzmann sums
+    // actor -> feature -> value
+    var sums = Map.empty[String, Double]
+    for ((other, features) <- m) {
+      for ((feature, value) <- features) {
+        sums = sums + (feature -> (value + sums.getOrElse(feature, 0.0)))
+      }
+    }
+
+    // actor -> other -> feature -> probability
+    val ps: Map[ActorRef, List[(String, Double)]] = m map {
+      case (other, features) => other -> (features map {
+        case (feature, value) =>
+          feature -> value / sums.getOrElse(feature, 0.0)
+      })
+    }
+
+    // just average the probabilities for now
+    // actor -> other -> probability
+    val p = for ((other, features) <- ps) yield
+      other -> features.map(_._2).sum / features.size
+
+    // pick actors to share with
+    val as = p filter (Random.nextDouble <= _._2) keys
+
+    as.toList
+  }
 }
 
 /** This does the actor stuff */
 trait SupervisorActor extends Actor with ActorLogging {
 
-  val distanceFns: DistanceFns
-
-  lazy val supervisor = Supervisor(distanceFns)
+  lazy val supervisor = Supervisor()
 
   def receive = {
     case Episode(experiences) =>
@@ -104,9 +78,9 @@ trait SupervisorActor extends Actor with ActorLogging {
       self ! Calculate(sender)
     case ContextVector(agent, vector) =>
       supervisor.addContextFeatures(agent, vector)
-//      supervisor.assessSimilarity(agent).map {
-//        _ ! Episode(supervisor.experiences(agent))
-//      }
+      supervisor.assessSimilarity(agent).map {
+        _ ! Episode(supervisor.experiences(agent))
+      }
     case msg => log.info("Supervisor receive")
   }
 }
@@ -116,18 +90,9 @@ case class Calculate(actor: ActorRef)
 case class Finished(actor: ActorRef, vector: List[ContextFeature])
 
 trait ContextFeature {
-  val context: String = this.getClass.toString
+  val context: String
 
   def distanceFrom(other: ContextFeature): Double
-}
-
-trait ContextFeature2 {
-  type Context
-  def distanceFrom(other: Context): Double
-}
-
-trait Context {
-  def distanceFn(x: ContextFeature, y: ContextFeature): Double
 }
 
 case class ContextVector(agent: ActorRef, vector: List[ContextFeature])

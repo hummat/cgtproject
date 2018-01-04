@@ -1,15 +1,9 @@
 package loadbalancing
 
-import akka.actor.{Actor, ActorLogging, ActorRef, Props}
+import akka.actor.{Actor, ActorContext, ActorLogging, ActorRef, ActorSelection, Props}
 import supervisory._
 
 trait BossActor extends Actor with ActorLogging {
-
-  val distanceFns  = Map(
-    RelativeLoad -> RelativeLoad.distanceFn _,
-    EnvironmentRate -> EnvironmentRate.distanceFn _,
-    AgentRate -> AgentRate.distanceFn _
-  )
 
   def receive = {
     case Calculate(actor) =>
@@ -26,13 +20,13 @@ case class BossCalc() {
 
   def addRelativeLoad(relativeLoad: Double) =
     this.relativeLoad = Some(RelativeLoad(relativeLoad))
-  def addEnvironmentRates(rates: Map[ActorRef, Double]) =
+  def addEnvironmentRates(rates: Map[Int, Double]) =
     this.environmentRates = Some((rates map {
-        case (actor, rate) => EnvironmentRate(actor, rate)
+        case (index, rate) => EnvironmentRate(index, rate)
     }).toList)
-  def addAgentRates(rates: Map[ActorRef, Double]) =
+  def addAgentRates(rates: Map[Int, Double]) =
     this.agentRates = Some((rates map {
-      case (actor, rate) => AgentRate(actor, rate)
+      case (index, rate) => AgentRate(index, rate)
     }).toList)
   def isComplete = relativeLoad.isDefined && environmentRates.isDefined &&
     agentRates.isDefined
@@ -73,28 +67,33 @@ case class BossCalcActor(actor: ActorRef) extends Actor with ActorLogging {
   def receive = receiveResult andThen checkComplete
 }
 
-case class AgentRateCalc() {
-  private var numNeighbors: Option[Integer] = None
+case class AgentRateCalc(context: ActorContext) {
+  private var neighbors: Option[List[ActorSelection]] = None
   private var neighborRates = Map.empty[ActorRef, Double]
 
-  def addNumNeighbors(numNeighbors: Integer) =
-    this.numNeighbors = Some(numNeighbors)
+  def addNeighbors(neighbors: List[ActorSelection]) =
+    this.neighbors = Some(neighbors)
   def addNeighborRate(actor: ActorRef, rate: Double) =
     this.neighborRates += actor -> rate
-  def isComplete = numNeighbors.isDefined &&
-    numNeighbors.get == neighborRates.size
-  def result = neighborRates
+  def isComplete = neighbors.isDefined &&
+    neighbors.get.length == neighborRates.size
+  def result = neighborRates map {
+    case (actor, rate) =>
+      val n = neighbors.get
+      val sel = context.system.actorSelection(actor.path)
+      n.indexOf(n.find(_ == sel).get) -> rate
+  }
 }
 
 case class AgentRateActor(actor: ActorRef)
   extends Actor with ActorLogging {
 
-  val calc = AgentRateCalc()
+  val calc = AgentRateCalc(context)
   actor ! NeighborRequest
 
   def receive = {
     case Neighbors(neighbors) =>
-      calc.addNumNeighbors(neighbors.length)
+      calc.addNeighbors(neighbors)
       neighbors.map(neighbor => neighbor ! AgentRateRequest)
     case Rate(rate) =>
       calc.addNeighborRate(sender, rate)
@@ -105,28 +104,33 @@ case class AgentRateActor(actor: ActorRef)
   }
 }
 
-case class EnvironmentRateCalc() {
-  private var numNeighbors: Option[Integer] = None
+case class EnvironmentRateCalc(context: ActorContext) {
+  private var neighbors: Option[List[ActorSelection]] = None
   private var neighborRates = Map.empty[ActorRef, Double]
 
-  def addNumNeighbors(numNeighbors: Integer) =
-    this.numNeighbors = Some(numNeighbors)
+  def addNeighbors(neighbors: List[ActorSelection]) =
+    this.neighbors = Some(neighbors)
   def addNeighborRate(actor: ActorRef, rate: Double) =
     this.neighborRates += actor -> rate
-  def isComplete = numNeighbors.isDefined &&
-    numNeighbors.get == neighborRates.size
-  def result = neighborRates
+  def isComplete = neighbors.isDefined &&
+    neighbors.get.length == neighborRates.size
+  def result = neighborRates map {
+    case (actor, rate) =>
+      val n = neighbors.get
+      val sel = context.system.actorSelection(actor.path)
+      n.indexOf(n.find(_ == sel).get) -> rate
+  }
 }
 
 case class EnvironmentRateActor(actor: ActorRef)
   extends Actor with ActorLogging {
 
-  val calc = EnvironmentRateCalc()
+  val calc = EnvironmentRateCalc(context)
   actor ! NeighborRequest
 
   def receive = {
     case Neighbors(neighbors) =>
-      calc.addNumNeighbors(neighbors.length)
+      calc.addNeighbors(neighbors)
       neighbors.map(neighbor => neighbor ! EnvironmentRateRequest)
     case Rate(rate) =>
       calc.addNeighborRate(sender, rate)
@@ -139,12 +143,12 @@ case class EnvironmentRateActor(actor: ActorRef)
 
 case class RelativeLoadCalc() {
   private var agentLoad: Option[Double] = None
-  private var numNeighbors: Option[Integer] = None
+  private var numNeighbors: Option[Int] = None
   private var neighborLoads: List[Double] = Nil
 
   def addAgentLoad(serviceTime: Double) =
     this.agentLoad = Some(serviceTime)
-  def addNumNeighbors(numNeighbors: Integer) =
+  def addNumNeighbors(numNeighbors: Int) =
     this.numNeighbors = Some(numNeighbors)
   def addNeighborLoad(serviceTime: Double) =
     this.neighborLoads = serviceTime :: this.neighborLoads
@@ -178,55 +182,29 @@ case class RelativeLoadActor(actor: ActorRef)
 case class CalculateRelativeLoad(actor: ActorRef)
 case class SolutionRelativeLoad(actor: ActorRef, load: Double)
 case class RelativeLoad(load: Double) extends ContextFeature {
-  override def distanceFrom(other: ContextFeature) = {
-    val (a, b) = (this.load, other.asInstanceOf[RelativeLoad].load)
+  val context = RelativeLoad.toString
+  def distanceFrom(other: ContextFeature) = {
     import math._
-    pow(E, -abs(a - b))
+    pow(E, -abs(this.load - other.asInstanceOf[RelativeLoad].load))
   }
-}
-//case class RelativeLoad(load: Double) extends ContextFeature2 {
-//  override type Context = this.type
-//  def distanceFrom(other: Context) = {
-//    val (a, b) = (this.load, other.load)
-//    import math._
-//    pow(E, -abs(a - b))
-//  }
-//}
-object RelativeLoad extends Context {
-  // x and y should be RelativeLoad (casting is bad)
-  def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
-      x.asInstanceOf[RelativeLoad].load - y.asInstanceOf[RelativeLoad].load)
 }
 
 case class CalculateEnvironmentRate(actor: ActorRef)
-case class SolutionEnvironmentRate(actor: ActorRef,
-                                   rates: Map[ActorRef, Double])
-case class EnvironmentRate(agent: ActorRef, rate: Double) extends ContextFeature {
-  override def distanceFrom(other: ContextFeature) = {
-    val (a, b) = (this.rate, other.asInstanceOf[EnvironmentRate].rate)
+case class SolutionEnvironmentRate(actor: ActorRef, rates: Map[Int, Double])
+case class EnvironmentRate(index: Int, rate: Double) extends ContextFeature {
+  val context = EnvironmentRate.toString + index.toString
+  def distanceFrom(other: ContextFeature) = {
     import math._
-    pow(E, -abs(a - b))
+    pow(E, -abs(this.rate - other.asInstanceOf[EnvironmentRate].rate))
   }
-}
-object EnvironmentRate extends Context {
-  // x and y should be EnvironmentRate (casting is bad)
-  def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
-    x.asInstanceOf[EnvironmentRate].rate - y.asInstanceOf[EnvironmentRate].rate)
 }
 
 case class CalculateAgentRate(actor: ActorRef)
-case class SolutionAgentRate(actor: ActorRef,
-                             rates: Map[ActorRef, Double])
-case class AgentRate(agent: ActorRef, rate: Double) extends ContextFeature {
+case class SolutionAgentRate(actor: ActorRef, rates: Map[Int, Double])
+case class AgentRate(index: Int, rate: Double) extends ContextFeature {
+  val context = AgentRate.toString + index.toString
   def distanceFrom(other: ContextFeature) = {
-//    math.abs(this.rate - other.asInstanceOf[AgentRate].rate)
-    val (a, b) = (this.rate, other.asInstanceOf[AgentRate].rate)
     import math._
-    pow(E, -abs(a - b))
+    pow(E, -abs(this.rate - other.asInstanceOf[AgentRate].rate))
   }
-}
-object AgentRate extends Context {
-  // x and y should be AgentRate (casting is bad)
-  def distanceFn(x: ContextFeature, y: ContextFeature): Double = math.abs(
-    x.asInstanceOf[AgentRate].rate - y.asInstanceOf[AgentRate].rate)
 }

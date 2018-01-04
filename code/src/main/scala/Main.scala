@@ -1,62 +1,52 @@
-import Main.supervisor
 import akka.actor.{Actor, ActorLogging, ActorRef, ActorSystem, Props}
-import loadbalancing.{BossActor, Task, WorkerActor}
+import loadbalancing.{BossActor, Task, Tick, WorkerActor}
 import supervisory.{SubordinateActor, SupervisorActor}
+
+import scala.concurrent.Await
+import scala.concurrent.duration._
+import scala.util.Random
+import scala.concurrent.ExecutionContext.Implicits.global
 
 /**
   * Main entry point
   */
 object Main extends App {
 
+  val maxSteps = 10000
+  val numSupervisors = 1
+  val numSubordinates = 10
+  val maxBranchingFactor = 3
+
   val system = ActorSystem("dynamicColearning")
+  val environment = system.actorOf(
+    Props(classOf[Environment], maxSteps, numSubordinates), "environment")
 
-  val graph = Map( // vertex -> edges
-    1 -> List(2,3,4),
-    2 -> List(1,3,4),
-    3 -> List(1,2,4),
-    4 -> List(2,3,4)
-  )
+  println("Begin actor creation")
+  Graph(system, numSupervisors, numSubordinates, maxBranchingFactor)
+  println("End actor creation")
 
+  environment ! Start
+}
 
-
-
-  val environment = system.actorOf(Props[Environment],
-    "environment")
-  val supervisor = system.actorOf(Props[SupervisorNode],
-    "supervisor1")
-  var workers:List[ActorRef] = getListWorker(graph, supervisor)
-
-  val worker1 = system.actorOf(
-    Props(classOf[WorkerNode], supervisor, List("worker2")),
-    "worker1")
-  val worker2 = system.actorOf(
-    Props(classOf[WorkerNode], supervisor, List("worker1")),
-    "worker2")
-
-  worker1 ! Task(id = "1", step = 1, s = 3, c = 0)
-  worker1 ! Task(id = "2", step = 1, s = 2, c = 0)
-  worker1 ! Task(id = "3", step = 1, s = 3, c = 0)
-
-  Thread.sleep(10000)
-  system.terminate()
-
-  def getListWorker(graph: Map[Int, List[Int]], supervisor: ActorRef): List[ActorRef] = {
-    var workers: List[ActorRef] = List()
-    for(node <- graph){
-      val neighbours = node._2.map(neighbour=> getWorkerName(neighbour))
-      val name = getWorkerName(node._1)
-      val worker = system.actorOf(
-        Props(classOf[WorkerNode], supervisor, neighbours),
-        name)
-      workers ::= worker
-    }
-    workers
+case class Graph(system: ActorSystem,
+                 numSupervisors: Int,
+                 numSubordinates: Int,
+                 maxBranchingFactor: Int) {
+  val supervisors = (1 to numSupervisors).map(num =>
+    system.actorOf(Props[SupervisorNode], s"supervisor$num")).toArray
+  val graph = (1 to numSubordinates).map(num => {
+    val numNeighbors = Random.nextInt(maxBranchingFactor) + 1
+    val neighbors = (1 to numNeighbors).map(i => {
+      val neighbor = Random.nextInt(numSubordinates) + 1
+      s"worker$neighbor"
+    })
+    s"worker$num" -> neighbors.toList
+  })
+  val workers = graph map { case (worker, neighbors) =>
+    // Random Supervisor
+    val supervisor = supervisors(Random.nextInt(numSupervisors))
+    system.actorOf(Props(classOf[WorkerNode], supervisor, neighbors), worker)
   }
-
-  def getWorkerName(node: Int): String ={
-    s"worker$node"
-  }
-
 }
 
 /** Concretized worker */
@@ -74,8 +64,25 @@ case class SupervisorNode() extends BossActor with SupervisorActor {
     super[BossActor].receive orElse super[SupervisorActor].receive
 }
 
-case class Environment() extends Actor with ActorLogging {
+case class Environment(max: Int, workers: Int)
+  extends Actor with ActorLogging {
+  var step = 1
+
   def receive = {
+    case Start =>
+      context.system.scheduler.schedule(
+        initialDelay = 1 seconds, interval = 1 seconds, self, Tick)
+    case Tick =>
+      if (step > max) Await.ready(context.system.terminate(), Duration.Inf)
+
+      // random policy as default with max serviceTime of 20
+      val chosen = Random.nextInt(workers) + 1
+      val worker = context.system.actorSelection(s"/user/worker$chosen")
+      val serviceTime = Random.nextInt(20) + 1
+      worker ! Task(step.toString, step, serviceTime, serviceTime, 0)
+      step += 1
     case task: Task => log.info("Environment received " + task.toString)
   }
 }
+
+object Start
