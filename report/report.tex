@@ -2,6 +2,10 @@
 \usepackage{natbib,alifexi}
 \usepackage[english]{babel}
 \usepackage{blindtext}
+\usepackage{xcolor}
+\usepackage{microtype}
+
+\newcommand\todo[1]{\textcolor{orange}{Todo: #1}}
 
 \title{Review: Accelerating Multi-agent Reinforcement Learning
 with Dynamic Co-learning}
@@ -15,28 +19,31 @@ $^1$\{steven.homer, fabian.perez, quinten.rosseel, matthias.humt\}@vub.be}
 
 \begin{abstract}
  The article being reviewed introduces a technique to accelerate the learning progress in Multi-Agent Reinforcement Learning (MARL) settings, by dynamically sharing the experience of contextually similar agents with their neighbors.
+ \\\todo{Finish abstract}
 \end{abstract}
 
 \section{Introduction}
-In the introduction a clear specification of the problem is provided, including related work. Look for additional but relevant references which you can cite in this part.\\[.5cm]
-
-In the standard Reinforcement Learning (RL) setting, an agent is placed into an unknown environment and provided with a set of actions from which it can choose. By performing an action, the agent can change its state which is then solely defined by the previous state the agent was in before and the chosen action. In certain states, defined by the problem setting, the environment provides feedback to the agent, often called \textit{reward} which can be either positive or negative. From this, the agent begins to approximate the underlying reward function in trying to maximize the expected future reward.  Multi-Agent Reinforcement Learning (MARL) is a problem setting, where multiple, often hundreds or thousands of autonomous agents try to pursue their individual goals simultaneously in a common environment. We speak of cooperative MARL, if multiple or all agents pursue the same goal, which is
-Agents are characterised by the current state they are in and a set of actions they can perform.
+In the standard Reinforcement Learning (RL) setting, an agent is placed into an unknown environment and provided with a set of actions from which it can choose. By performing an action, the agent can change its state which is then solely defined by the previous state the agent was in before and the chosen action. In certain states, defined by the problem setting, the environment provides feedback to the agent, often called \textit{reward} which can be either positive or negative. From this, the agent begins to approximate the underlying reward function in trying to maximize the expected future reward. Once having started to learn, the agent has to decide whether to exploit current knowledge by choosing the actions it expects to yield the highest reward or to explore new states with potentially higher rewards by trying new state-action combinations.
+\\\todo{Add an example}\\
+Multi-Agent Reinforcement Learning (MARL) is an extension to the standard RL problem setting, where multiple, often hundreds or thousands of autonomous agents try to pursue their individual goals simultaneously in a common environment. We speak of cooperative MARL, if multiple or all agents pursue the same goal, which means they try to maximize a common reward function. If they succeed, we say that they follow a (near-optimal) joint policy where policy means a mapping from states to actions. To achieve this however has proven to be difficult for large-scale multi-agent systems as it is computationally expensive and requires a large number of update steps until it converges.\\
+An important insight on the path to solving this problem is the observation, that an exploitable structure in the problem setting in the form of contextually similar groups of agents emerges during learning.
+Real world examples of this effect can be observed in \todo{Add examples}. Agents working on similar tasks under comparable environmental dynamics might benefit from sharing information to accelerate their individual learning progress which is the paradigm proposed in the paper under review. Additionally, strategies to identify promising candidates for information sharing and group formation are proposed.
+\\\todo{Add citations}
 
 \section{Methods}
-In the Methods section you specify how the model is constructed.\\[.5cm]
-\blindtext
+\todo{Explain model as proposed in the paper}
+\\\todo{Explain our implementation of the model}
 
-\section{Results and Discussion}
-In the Results section you provide a descriptions of the simulations you have done and their results.  Also include the information concerning the parameter settings.\\
-In the Discussion section you provide a summary and an explanation of your work.\\[.5cm]
-\blindtext
+\section{Results}
+\todo{Describe the performed simulations and their results}
+\\\todo{Include chosen parameter settings}
+
+\section{Discussion}
+\todo{Summary and explanation of our work}
 
 \section{Conclusion}
-Related work. All articles cited in the original paper.\\[.5cm]
-\citep{carroll2005task}, \citep{garant2015accelerating},\\ \citep{ghavamzadeh2006hierarchical}, \citep{gmytrasiewicz2005framework},\\ \citep{guestrin2002multiagent}, \citep{kitano1999robocup},\\ \citep{lazaric2008transfer}, \citep{littman2001value},\\ \citep{nair2005networked}, \citep{nedic2009distributed},\\ \citep{oliehoek2008exploiting}, \citep{price2003accelerating},\\ \citep{renyi1961measures}, \citep{taylor2009transfer},\\ \citep{vickrey2002multi}, \citep{witwicki2010influence},\\ \citep{zhang2010self}, \citep{zhang2013coordinating}
-
-Questions to be answered by reviewing party:
+\todo{Add related work and an outlook}
+\\\todo{Make sure all questions given below are answered}
 \begin{enumerate}
  \item Does the introduction explain clearly the content of the paper
  \item whether there is sufficient background information to understand the relevance of the work
@@ -53,6 +60,8 @@ Questions to be answered by reviewing party:
        improvement
  \item at least 3 clear and relevant questions on the content or the methods used which can be asked (next to other questions).
 \end{enumerate}
+
+\citep{carroll2005task}, \citep{garant2015accelerating},\\ \citep{ghavamzadeh2006hierarchical}, \citep{gmytrasiewicz2005framework},\\ \citep{guestrin2002multiagent}, \citep{kitano1999robocup},\\ \citep{lazaric2008transfer}, \citep{littman2001value},\\ \citep{nair2005networked}, \citep{nedic2009distributed},\\ \citep{oliehoek2008exploiting}, \citep{price2003accelerating},\\ \citep{renyi1961measures}, \citep{taylor2009transfer},\\ \citep{vickrey2002multi}, \citep{witwicki2010influence},\\ \citep{zhang2010self}, \citep{zhang2013coordinating}
 
 \footnotesize
 \bibliographystyle{apalike}
