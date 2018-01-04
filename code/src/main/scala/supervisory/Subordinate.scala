@@ -5,8 +5,9 @@ import akka.actor.{Actor, ActorLogging, ActorRef}
 trait SubordinateActor extends Actor with ActorLogging {
 
   val supervisor: ActorRef
+  val window: Int
 
-  val acc = ExperienceAccumulator(10)
+  val acc = ExperienceAccumulator(window)
 
   def receive = {
     case experience: Experience =>
