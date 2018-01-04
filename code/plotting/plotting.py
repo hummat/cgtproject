@@ -13,11 +13,11 @@ __email__ = "matthias.humt@tum.de"
 __data__ = "04.01.2017"
 
 import numpy as np
-import statsmodels.api as sm
+#import statsmodels.api as sm
 import pandas as pd
 from scipy import stats
 from matplotlib import pyplot as plt
-from sklearn.linear_model import LogisticRegressionCV
+#from sklearn.linear_model import LogisticRegressionCV
 
 # Official Tableau 20 colors used for plotting
 # http://tableaufriction.blogspot.nl/2012/11/finally-you-can-use-tableau-data-colors.html
@@ -37,19 +37,24 @@ def _init():
         TABLEAU20[index] = (color[0] / 255., color[1] / 255., color[2] / 255.)
 
 
-def _generate_data(samples=1000, scale=10, skew=(2, 10)):
+def _generate_data(samples=10000, scale=10, skew=(2, 10)):
     x = np.linspace(0, 1, samples)
     data = scale * stats.beta.pdf(x, skew[0], skew[1])
     np.savetxt('test_data.csv', data, delimiter='\t')
 
 
 def _auc(K, sum_of_s):
-    min = sum_of_s.min()
+    means_of_sums = np.zeros(int(len(sum_of_s) / K))
+    for index, step in enumerate(range(K, len(sum_of_s), K)):
+        means_of_sums[index] = sum_of_s[step:step+K].mean()
+    means_of_sums -= means_of_sums.min()
 
 
 def figure1():
-    df = pd.read_csv("csv_data/test_data.csv", '\t')
-    _auc(K=115, sum_of_s=df.values.ravel())
+    df = pd.read_csv("test_data.csv", '\t')
+    _auc(K=50, sum_of_s=df.values.ravel())
 
 
 _init()
+_generate_data(10000)
+figure1()
