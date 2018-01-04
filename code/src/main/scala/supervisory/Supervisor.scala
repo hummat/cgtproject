@@ -80,10 +80,11 @@ trait SupervisorActor extends Actor with ActorLogging {
       self ! Calculate(sender)
     case ContextVector(agent, vector) =>
       supervisor.addContextFeatures(agent, vector)
-      supervisor.assessSimilarity(agent).map {
-        _ ! Episode(supervisor.experiences(agent))
+      supervisor.assessSimilarity(agent).foreach { case other =>
+        log.info(s"Sharing $agent with $other")
+        other ! Episode(supervisor.experiences(agent))
       }
-    case msg => log.info("Supervisor receive")
+//    case msg => log.info("Supervisor receive")
   }
 }
 

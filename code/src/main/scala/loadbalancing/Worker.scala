@@ -98,8 +98,7 @@ trait WorkerActor extends Actor with ActorLogging {
 
   // process clock
   context.system.scheduler.schedule(
-    initialDelay = 1 seconds, interval = 1 seconds, self, Tick
-  )
+    initialDelay = 10 microseconds, interval = 10 microseconds, self, Tick)
 
   def receive = {
 

@@ -7,17 +7,20 @@ import scala.concurrent.duration._
 import scala.util.Random
 import scala.concurrent.ExecutionContext.Implicits.global
 
+import java.io._
+
 /**
   * Main entry point
   */
 object Main extends App {
 
   // Experiment Parameters
+  val filename = "filename.csv"
   val maxSteps = 10000
   val numSupervisors = 1
-  val numSubordinates = 10
-  val window = 10
-  val trials = 10
+  val numSubordinates = 100
+  val window = 115
+  val trials = 1
   val noise = 0.0 // wtf is juice???
 
   // Other Parameters
@@ -28,9 +31,17 @@ object Main extends App {
     val system = ActorSystem("dynamicColearning")
 
     val environment = system.actorOf(
-      Props(classOf[Environment], maxSteps, numSubordinates, maxServiceTime),
-      "environment")
+      Props(classOf[Environment],
+        maxSteps,
+        numSubordinates,
+        maxServiceTime,
+        filename,
+        trial,
+        window,
+        numSupervisors
+      ), "environment")
 
+    // do we want a new graph for each trial??? probably not.
     Graph(system, numSupervisors, numSubordinates, maxBranchingFactor, window)
 
     environment ! Start
@@ -90,16 +101,25 @@ case class SupervisorNode() extends BossActor with SupervisorActor {
     super[BossActor].receive orElse super[SupervisorActor].receive
 }
 
-case class Environment(max: Int, workers: Int, maxServiceTime: Int)
+// gross with so many inputs
+case class Environment(maxStep: Int,
+                       workers: Int,
+                       maxServiceTime: Int,
+                       filename: String,
+                       trial: Int,
+                       window: Int,
+                       sups: Int)
   extends Actor with ActorLogging {
   var step = 1
+  val bw = new BufferedWriter(new FileWriter(new File(filename)))
+  bw.write("trial,step,original,complete,window,sups,size\n")
+
 
   def receive = {
     case Start =>
       context.system.scheduler.schedule(
-        initialDelay = 1 seconds, interval = 1 seconds, self, Tick)
+        initialDelay = 10 microseconds, interval = 10 microseconds, self, Tick)
     case Tick =>
-      // random policy as default with max serviceTime of 20
       val chosen = Random.nextInt(workers) + 1
       val worker = context.system.actorSelection(s"/user/worker$chosen")
       val serviceTime = Random.nextInt(maxServiceTime) + 1
@@ -107,10 +127,22 @@ case class Environment(max: Int, workers: Int, maxServiceTime: Int)
       step += 1
 
       // Stop at maxTimeSteps
-      if (step > max) context.system.terminate()
+      if (step > maxStep) {
+        bw.close()
+        context.system.terminate()
+      }
 
     case task: Task =>
       //TODO: output tasks received to csv
+      val row = s"$trial," +
+        s"${task.step}," +
+        s"${task.o}," +
+        s"${task.c}," +
+        s"$window," +
+        s"$sups," +
+        s"$workers\n"
+      bw.write(row)
+
       log.info("Environment received " + task.toString)
   }
 }
