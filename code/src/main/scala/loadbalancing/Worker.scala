@@ -13,7 +13,8 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
   var process= List.empty[Task]
   var q = (selfAS :: neighbors).map(neighbor => neighbor -> 0.0).toMap
   val gamma = 0.1
-  val tau = 1
+  val tau = 0.1
+  val epsilon = 0.1
 
   var environmentTask = Task("environmentTask", 0, 0, 0, 0) // dummy initial
   var environmentRate = 0.0
@@ -70,6 +71,9 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
       if (r <= sum) return actor
     }
     q.head._1 // this should never happen
+    // tried some epsilon-greedy, went poorly
+//    if (Random.nextDouble <= epsilon) q.maxBy(_._2)._1
+//    else neighbors(Random.nextInt(neighbors.length))
   }
 
   def updateExperiences(experiences: List[Experience]) = {
