@@ -29,6 +29,7 @@ case class Supervisor() {
     // calculate pairwise distances and convert to Boltzmann exponential
     // actor -> other -> feature -> value
     val agentFeatures = contextFeatures(agent).sortBy(_.context)
+    var states = Map.empty[String, Set[Double]] // distinct states of context
     var m: Map[ActorRef, List[(String, Double)]] =
       (contextFeatures - agent) filter {
         case (other: ActorRef, features: List[ContextFeature]) =>
@@ -36,24 +37,19 @@ case class Supervisor() {
       } map {
         case (other: ActorRef, features: List[ContextFeature]) => other -> (
           agentFeatures zip features.sortBy(_.context) map {
-            case (a, b) => a.context -> exp(a.distanceFrom(b))
+            case (a, b) =>
+              val bz = exp(a.distanceFrom(b))
+              states = states + (a.context -> (states.getOrElse(a.context,
+                Set.empty[Double]) + bz))
+              a.context -> bz
           })
       }
-
-    // calculate Boltzmann sums
-    // actor -> feature -> value
-    var sums = Map.empty[String, Double]
-    for ((other, features) <- m) {
-      for ((feature, value) <- features) {
-        sums = sums + (feature -> (value + sums.getOrElse(feature, 0.0)))
-      }
-    }
 
     // actor -> other -> feature -> probability
     val ps: Map[ActorRef, List[(String, Double)]] = m map {
       case (other, features) => other -> (features map {
         case (feature, value) =>
-          feature -> value / sums.getOrElse(feature, 0.0)
+          feature -> value / states(feature).sum
       })
     }
 
@@ -80,8 +76,9 @@ trait SupervisorActor extends Actor with ActorLogging {
       self ! Calculate(sender)
     case ContextVector(agent, vector) =>
       supervisor.addContextFeatures(agent, vector)
-      supervisor.assessSimilarity(agent).foreach { case other =>
-        log.info(s"Sharing $agent with $other")
+      val shares = supervisor.assessSimilarity(agent)
+      log.info(s"${shares.length}")
+      shares.foreach { case other =>
         other ! Episode(supervisor.experiences(agent))
       }
 //    case msg => log.info("Supervisor receive")
