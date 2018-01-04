@@ -37,8 +37,19 @@ def _init():
         TABLEAU20[index] = (color[0] / 255., color[1] / 255., color[2] / 255.)
 
 
-def _auc():
-    pass
+def _generate_data(samples=1000, scale=10, skew=(2, 10)):
+    x = np.linspace(0, 1, samples)
+    data = scale * stats.beta.pdf(x, skew[0], skew[1])
+    np.savetxt('test_data.csv', data, delimiter='\t')
+
+
+def _auc(K, sum_of_s):
+    min = sum_of_s.min()
+
+
+def figure1():
+    df = pd.read_csv("csv_data/test_data.csv", '\t')
+    _auc(K=115, sum_of_s=df.values.ravel())
 
 
 _init()

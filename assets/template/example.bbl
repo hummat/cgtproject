@@ -1,0 +1,119 @@
+\begin{thebibliography}{}
+
+\bibitem[Adami, 1995]{CA2}
+Adami, C. (1995).
+\newblock Self-organized criticality in living systems.
+\newblock {\em Physics Letters A}, 203:29--32.
+
+\bibitem[Adami, 1998]{IAL}
+Adami, C. (1998).
+\newblock {\em Introduction to Artificial Life}.
+\newblock TELOS Springer-Verlag, Santa Clara.
+
+\bibitem[Adami et~al., 1995]{ABH}
+Adami, C., Brown, C., and Haggerty, M. (1995).
+\newblock Abundance distributions in artificial life and stochastic models:
+  `age and area' revisited.
+\newblock In Mor{\'{a}}n, F., Moreno, A., and andP. Chac\'{o}n, J. J.~M.,
+  editors, {\em Proceedings of the Third European Conference on Advances in
+  Artificial Life}, pages 503--514. Springer-Verlag, Heidelberg.
+
+\bibitem[Adami and Brown, 1994]{AB1}
+Adami, C. and Brown, C.~T. (1994).
+\newblock Evolutionary learning in the 2d artificial life system `avida'.
+\newblock In Brooks, R.~A. and Maes, P., editors, {\em Artificial Life IV},
+  pages 377--381. MIT Press, Cambridge, MA.
+
+\bibitem[Bak and Paczuski, 1996]{BP96}
+Bak, P. and Paczuski, M. (1996).
+\newblock {\em Physics of Biological Systems}.
+\newblock Springer-Verlag, Heidelberg.
+
+\bibitem[Bak and Sneppen, 1993]{BS}
+Bak, P. and Sneppen, K. (1993).
+\newblock Punctuated equilibrium and criticality in a simple model of
+  evolution.
+\newblock {\em Physical Review Letters}, 71:4083--4086.
+
+\bibitem[Bak et~al., 1987]{BTW87}
+Bak, P., Tang, C., and Wiesenfeld, K. (1987).
+\newblock Self-organized criticality: An explanation of 1/$f$ noise.
+\newblock {\em Physical Review Letters}, 59:381--384.
+
+\bibitem[Bak et~al., 1988]{BTW88}
+Bak, P., Tang, C., and Wiesenfeld, K. (1988).
+\newblock Self-organized criticality.
+\newblock {\em Physical Review A}, 38:364--374.
+
+\bibitem[Burlando, 1990]{BUR90}
+Burlando, B. (1990).
+\newblock The fractal dimension of taxonomic systems.
+\newblock {\em Journal of Theoretical Biology}, 146:99--114.
+
+\bibitem[Burlando, 1993]{BUR93}
+Burlando, B. (1993).
+\newblock The fractal geometry of evolution.
+\newblock {\em Journal of Theoretical Biology}, 163:161--163.
+
+\bibitem[Chu and Adami, 1993]{CHU}
+Chu, J. and Adami, C. (1993).
+\newblock Propagation of information in populations of self-replicating code.
+\newblock In Langton, C. and Shimohara, K., editors, {\em Artificial Life V},
+  pages 462--469. MIT Press, Cambridge, MA.
+
+\bibitem[Elena et~al., 1996]{ECL96}
+Elena, S., Cooper, V., and Lenski, R. (1996).
+\newblock Punctuated evolution caused by selection of rare beneficial
+  mutations.
+\newblock {\em Science}, 272:1802--1804.
+
+\bibitem[Gil and Sornette, 1996]{GS}
+Gil, L. and Sornette, D. (1996).
+\newblock Landau-ginzburg theory of self-organized criticality.
+\newblock {\em Physical Review Letters}, 76:3991--3994.
+
+\bibitem[Gould and Eldredge, 1977]{GE77}
+Gould, S. and Eldredge, N. (1977).
+\newblock Punctuated equilibria: The tempo and mode of evolution reconsidered.
+\newblock {\em Palaeobiology}, 3:115--151.
+
+\bibitem[Gould and Eldregde, 1993]{GE93}
+Gould, S. and Eldregde, N. (1993).
+\newblock Punctuated equilibrium comes of age.
+\newblock {\em Nature}, 366:223--227.
+
+\bibitem[Lenski and Travisano, 1994]{LT94}
+Lenski, R. and Travisano, M. (1994).
+\newblock Dynamics of adaptation and diversification--a 10,000 generation
+  experiment with bacterial populations.
+\newblock {\em Proceedings of the National Academy of Science USA},
+  91:6808--6814.
+
+\bibitem[Newman et~al., 1997]{NFST}
+Newman, M., Fraser, S., Sneppen, K., and Tozier, W. (1997).
+\newblock Self-organized criticality in living systems---comment.
+\newblock {\em Physics Letters A}, 228:202--204.
+
+\bibitem[Ofria and Brown, 1998]{OBA}
+Ofria, C. and Brown, C. (1998).
+\newblock The avida user's manual.
+\newblock In Adami (1998), The Avida software is publicly available at
+  ftp.krl.caltech.edu/pub/avida.
+
+\bibitem[Sol\'e and Bascompte, 1996]{SB96}
+Sol\'e, R. and Bascompte, J. (1996).
+\newblock Are critical phenomena relevant to large-scale evolution.
+\newblock {\em Proceedings of the Royal Society of Londonm Series B},
+  263:161--168.
+
+\bibitem[Sornette et~al., 1995]{SJD}
+Sornette, D., Johansen, A., and Dornic, I. (1995).
+\newblock Mapping self-organized criticality to criticality.
+\newblock {\em Journal de Physique I.}, 5:325--335.
+
+\bibitem[Willis, 1922]{WIL}
+Willis, J. (1922).
+\newblock {\em Age and Area}.
+\newblock Cambridge University Press, Cambridge.
+
+\end{thebibliography}
