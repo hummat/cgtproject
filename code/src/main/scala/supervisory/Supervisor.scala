@@ -24,6 +24,8 @@ case class Supervisor() {
 
   def assessSimilarity(agent: ActorRef): List[ActorRef] = {
 
+    // TODO: implement noise in ContextFeature signal
+
     // calculate pairwise distances and convert to Boltzmann exponential
     // actor -> other -> feature -> value
     val agentFeatures = contextFeatures(agent).sortBy(_.context)
