@@ -16,7 +16,7 @@ import vegas._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "filename.csv"
+  val filename = "baseline3.csv"
   val maxSteps = 10000
   val numSupervisors = 0
   val numSubordinates = 100

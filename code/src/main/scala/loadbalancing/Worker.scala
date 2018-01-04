@@ -71,9 +71,6 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
       if (r <= sum) return actor
     }
     q.head._1 // this should never happen
-    // tried some epsilon-greedy, went poorly
-//    if (Random.nextDouble <= epsilon) q.maxBy(_._2)._1
-//    else neighbors(Random.nextInt(neighbors.length))
   }
 
   def updateExperiences(experiences: List[Experience]) = {
