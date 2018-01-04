@@ -44,19 +44,21 @@ def _generate_data(samples=10000, scale=10, skew=(2, 10)):
 
 
 def _auc(means):
-    data = means - means.min()
-    plt.plot(data)
+    plt.plot(means)
     plt.show()
 
 
 def figure1():
-    df = pd.read_csv("baseline.csv", delimiter=',')
-    data = pd.DataFrame({'step': df['step'] + df['complete'], 'time': df['complete']})
+    df = pd.read_csv("baseline3.csv", delimiter=',')
+    data = pd.DataFrame({'step': df['step'] + df['complete'], 'time': df['complete'] - df['original']})
     groups = data.groupby('step')
     means = groups.mean()
-    ewm_means = means['time'].ewm(span=100).mean()
-    _auc(means=ewm_means.values)
 
+    ewm_means = means['time'].ewm(span=2000, ignore_na=True).mean()
+    tmp = np.zeros(10000)
+    tmp[:] = np.nan
+    tmp[means.index] = ewm_means
+    _auc(means=tmp)
 
 _init()
 figure1()

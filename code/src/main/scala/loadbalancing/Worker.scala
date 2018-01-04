@@ -13,7 +13,7 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
   var process= List.empty[Task]
   var q = (selfAS :: neighbors).map(neighbor => neighbor -> 0.0).toMap
   val gamma = 0.1
-  val tau = 1
+  val tau = 0.1
 
   var environmentTask = Task("environmentTask", 0, 0, 0, 0) // dummy initial
   var environmentRate = 0.0
