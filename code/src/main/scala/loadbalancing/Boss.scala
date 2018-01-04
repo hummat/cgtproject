@@ -154,7 +154,10 @@ case class RelativeLoadCalc() {
     this.neighborLoads = serviceTime :: this.neighborLoads
   def isComplete = agentLoad.isDefined && numNeighbors.isDefined &&
     numNeighbors.get == neighborLoads.length
-  def result = agentLoad.get / (neighborLoads.sum / neighborLoads.length)
+  def result = {
+    val avg = math.max(1, (neighborLoads.sum / neighborLoads.length))
+    agentLoad.get / avg
+  }
 
 }
 
@@ -185,7 +188,7 @@ case class RelativeLoad(load: Double) extends ContextFeature {
   val context = RelativeLoad.toString
   def distanceFrom(other: ContextFeature) = {
     import math._
-    pow(E, -abs(this.load - other.asInstanceOf[RelativeLoad].load))
+    Quantize(pow(E, -abs(this.load - other.asInstanceOf[RelativeLoad].load)))
   }
 }
 
@@ -195,7 +198,7 @@ case class EnvironmentRate(index: Int, rate: Double) extends ContextFeature {
   val context = EnvironmentRate.toString + index.toString
   def distanceFrom(other: ContextFeature) = {
     import math._
-    pow(E, -abs(this.rate - other.asInstanceOf[EnvironmentRate].rate))
+    Quantize(pow(E, -abs(this.rate - other.asInstanceOf[EnvironmentRate].rate)))
   }
 }
 
@@ -205,6 +208,17 @@ case class AgentRate(index: Int, rate: Double) extends ContextFeature {
   val context = AgentRate.toString + index.toString
   def distanceFrom(other: ContextFeature) = {
     import math._
-    pow(E, -abs(this.rate - other.asInstanceOf[AgentRate].rate))
+    Quantize(pow(E, -abs(this.rate - other.asInstanceOf[AgentRate].rate)))
+  }
+}
+
+object Quantize {
+  import math._
+  def apply(value: Double): Double = {
+    quantize(value, 0.0, 0.1)
+  }
+  def quantize(value: Double, level: Double, inc: Double): Double = {
+    if(max(level, value) != level) level
+    else quantize(value, level + inc, inc)
   }
 }

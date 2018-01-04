@@ -112,7 +112,6 @@ trait WorkerActor extends Actor with ActorLogging {
 
     case task: Task =>
       val current = worker.serviceTime
-      val inverse = worker.inverseService
       val neighbor = worker.decideNeighbor
       val index = neighbors.indexOf(neighbor)
 
@@ -124,12 +123,12 @@ trait WorkerActor extends Actor with ActorLogging {
         worker.takeNewTask(task)
         // Send the reward signal to yourself
         self ! Act(
-          task step, current, Process, worker serviceTime, inverse)
+          task step, current, Process, worker serviceTime, worker inverseService)
       } else { // Route the task
-        // Route message retrieves reward signal
-        neighbor ! Route(task step, current, index)
         // Task message actually routes the Task
         neighbor ! task
+        // Route message retrieves reward signal
+        neighbor ! Route(task step, current, index)
       }
 
     case Route(step, current, index) =>

@@ -19,7 +19,7 @@ object Main extends App {
   val maxSteps = 10000
   val numSupervisors = 0
   val numSubordinates = 100
-  val window = 115
+  val window = 10
   val trials = 1
   val noise = 0.0 // wtf is juice???
 
@@ -143,7 +143,7 @@ case class Environment(maxStep: Int,
         s"$workers\n"
       bw.write(row)
 
-      log.info("Environment received " + task.toString)
+//      log.info("Environment received " + task.toString)
   }
 }
 
