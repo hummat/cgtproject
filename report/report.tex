@@ -14,12 +14,14 @@ $^1$\{steven.homer, fabian.perez, quinten.rosseel, matthias.humt\}@vub.be}
 \maketitle
 
 \begin{abstract}
- The article being reviewed introduces a
+ The article being reviewed introduces a technique to accelerate the learning progress in Multi-Agent Reinforcement Learning (MARL) settings, by dynamically sharing the experience of contextually similar agents with their neighbors.
 \end{abstract}
 
 \section{Introduction}
 In the introduction a clear specification of the problem is provided, including related work. Look for additional but relevant references which you can cite in this part.\\[.5cm]
-\blindtext
+
+In the standard Reinforcement Learning (RL) setting, an agent is placed into an unknown environment and provided with a set of actions from which it can choose. By performing an action, the agent can change its state which is then solely defined by the previous state the agent was in before and the chosen action. In certain states, defined by the problem setting, the environment provides feedback to the agent, often called \textit{reward} which can be either positive or negative. From this, the agent begins to approximate the underlying reward function in trying to maximize the expected future reward.  Multi-Agent Reinforcement Learning (MARL) is a problem setting, where multiple, often hundreds or thousands of autonomous agents try to pursue their individual goals simultaneously in a common environment. We speak of cooperative MARL, if multiple or all agents pursue the same goal, which is
+Agents are characterised by the current state they are in and a set of actions they can perform.
 
 \section{Methods}
 In the Methods section you specify how the model is constructed.\\[.5cm]
