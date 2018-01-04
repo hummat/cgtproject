@@ -43,18 +43,20 @@ def _generate_data(samples=10000, scale=10, skew=(2, 10)):
     np.savetxt('test_data.csv', data, delimiter='\t')
 
 
-def _auc(K, sum_of_s):
-    means_of_sums = np.zeros(int(len(sum_of_s) / K))
-    for index, step in enumerate(range(K, len(sum_of_s), K)):
-        means_of_sums[index] = sum_of_s[step:step+K].mean()
-    means_of_sums -= means_of_sums.min()
+def _auc(means):
+    data = means - means.min()
+    plt.plot(data)
+    plt.show()
 
 
 def figure1():
-    df = pd.read_csv("test_data.csv", '\t')
-    _auc(K=50, sum_of_s=df.values.ravel())
+    df = pd.read_csv("baseline.csv", delimiter=',')
+    data = pd.DataFrame({'step': df['step'] + df['complete'], 'time': df['complete']})
+    groups = data.groupby('step')
+    means = groups.mean()
+    ewm_means = means['time'].ewm(span=100).mean()
+    _auc(means=ewm_means.values)
 
 
 _init()
-_generate_data(10000)
 figure1()

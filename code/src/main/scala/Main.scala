@@ -15,9 +15,9 @@ import java.io._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "filename.csv"
+  val filename = "baseline.csv"
   val maxSteps = 10000
-  val numSupervisors = 1
+  val numSupervisors = 0
   val numSubordinates = 100
   val window = 115
   val trials = 1
