@@ -40,7 +40,8 @@ def _init():
 def _generate_data(samples=10000, scale=10, skew=(2, 10)):
     x = np.linspace(0, 1, samples)
     data = scale * stats.beta.pdf(x, skew[0], skew[1])
-    np.savetxt('test_data.csv', data, delimiter='\t')
+    # Todo: make better test data with pandas
+    np.savetxt('test_data.csv', data, delimiter=',')
 
 
 def _auc(means):
