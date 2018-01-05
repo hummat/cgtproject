@@ -62,18 +62,40 @@ def _process_input(filename):
 
 
 def _auc(means):
-    plt.plot(means)
+    pass
+
+
+def _curve(data, ax, color, label):
+    # Data processing
+    means = _process_input(data)
+    tmp = pd.DataFrame({'y': np.nan * np.zeros(10000)})
+    tmp['y'][means.index - 1] = means['y']
+    y = tmp['y'].ewm(span=10000, ignore_na=True).mean()
+    x = np.arange(10000)
+
+    # Plotting
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.spines['left'].set_visible(False)
+    ax.tick_params(axis='both', which='both', bottom='off', top='off',
+                   labelbottom='on', left='off', right='off', labelleft='on', direction='in')
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    ax.set_ylabel('Service Time', fontsize=16, labelpad=20)
+    ax.set_xlabel('Time', fontsize=16, labelpad=20)
+    ax.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
+    ax.plot(x, y, color='black', linewidth=.5, label='_nolegend_')
+    ax.fill_between(x, y, 0, color=color, label=label)
+
+
+def figure5(baseline, supervised):
+    fig, ax = plt.subplots(figsize=(12, 9))
+    _curve(baseline, ax, TABLEAU20[0], 'Baseline')
+    _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
+    ax.legend(fontsize=14, frameon=False)
     plt.show()
 
 
-def figure1():
-    means = _process_input('baseline5.csv')
-    ewm_means = means['y'].ewm(span=10000, ignore_na=True).mean()
-    tmp = np.zeros(10001)
-    tmp[:] = np.nan
-    tmp[means.index] = ewm_means
-    _auc(means=tmp)
-
-
 _init()
-figure1()
+figure5('baseline5.csv', 'one_sup3.csv')
