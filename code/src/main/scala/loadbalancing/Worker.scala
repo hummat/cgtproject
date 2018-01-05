@@ -8,7 +8,9 @@ import scala.concurrent.ExecutionContext.Implicits.global
 import scala.util.Random
 
 /** This does the policy and loadbalancing stuff */
-case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
+case class Worker(selfAS: ActorSelection,
+                  neighbors: List[ActorSelection],
+                  window: Int) {
 
   var process= List.empty[Task]
   var q = (selfAS :: neighbors).map(neighbor => neighbor -> 0.0).toMap
@@ -16,10 +18,9 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
   val tau = 0.1
   val epsilon = 0.1
 
-  var environmentTask = Task("environmentTask", 0, 0, 0, 0) // dummy initial
-  var environmentRate = 0.0
-  var agentTask = Task("agentTask", 0, 0, 0, 0) // dummy initial
-  var agentRate = 0.0
+  var serviceTimes = List.empty[Double]
+  var environmentRates = List.empty[Int]
+  var agentRates = List.empty[Int]
 
   def updateQ(actor: ActorSelection, reward: Double) = {
     val current = q.getOrElse(actor, 0.0)
@@ -28,20 +29,36 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
 
   def serviceTime = (0.0 /: process) (_ + _.s) / math.max(process.length,1)
 
+  def avgServiceTime = serviceTimes.sum / serviceTimes.length
+
   def inverseService = if (serviceTime != 0) 1 / serviceTime else 0.0
 
   // backward finite difference approximation of rate of tasks from environment
-  def updateEnvironmentRate(task: Task) = {
-    val diff = task.step - environmentTask.step
-    environmentRate = if(diff != 0) 1 / diff else 2.0
-    environmentTask = task
+  def updateEnvironmentRate(task: Task) =
+    environmentRates = (task.step :: environmentRates).take(window)
+
+  def environmentRate = {
+//    (environmentRates.head - environmentRates.last) / environmentRates.length
+    if (environmentRates.isEmpty) 0.0 else {
+      var a = environmentRates.head
+      1 / ((for (b <- environmentRates.tail) yield {
+        val t = a - b; a = b; t
+      }).sum.toDouble / (environmentRates.length - 1))
+    }
   }
 
   // backward finite difference approximation of rate of tasks from other agents
-  def updateAgentRate(task: Task) = {
-    val diff = task.step - agentTask.step
-    agentRate = if (diff != 0) 1 / diff else 2.0
-    agentTask = task
+  def updateAgentRate(task: Task) =
+    agentRates = (task.step :: agentRates).take(window)
+
+  def agentRate = {
+//    (agentRates.head - agentRates.last) / agentRates.length
+    if (agentRates.isEmpty) 0.0 else {
+      var a = agentRates.head
+      1 / ((for (b <- agentRates.tail) yield {
+        val t = a - b; a = b; t
+      }).sum.toDouble / (agentRates.length - 1))
+    }
   }
 
   def hasWork = !process.isEmpty
@@ -57,7 +74,10 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
   def completeTask =
     process splitAt 1 match { case (done, rest) => process = rest; done }
 
-  def takeNewTask(task: Task) = process = (task :: process.reverse).reverse
+  def takeNewTask(task: Task) = {
+    process = (task :: process.reverse).reverse
+    serviceTimes = (serviceTime :: serviceTimes) take window
+  }
 
   def exp(actor: ActorSelection): Double = math.pow(math.E, q(actor) / tau)
 
@@ -86,6 +106,7 @@ case class Worker(selfAS: ActorSelection, neighbors: List[ActorSelection]) {
 /** This does the actor stuff */
 trait WorkerActor extends Actor with ActorLogging {
 
+  val window: Int
   val neighborNames: List[String]
   lazy val neighbors = neighborNames.map(name =>
     context.system.actorSelection(s"/user/$name"))
@@ -95,7 +116,7 @@ trait WorkerActor extends Actor with ActorLogging {
 
   // worker logic
   val selfAS = context.system.actorSelection(self.path)
-  lazy val worker = Worker(selfAS, neighbors)
+  lazy val worker = Worker(selfAS, neighbors, window)
 
   // process clock
   context.system.scheduler.schedule(
@@ -116,7 +137,7 @@ trait WorkerActor extends Actor with ActorLogging {
       val neighbor = worker.decideNeighbor
       val index = neighbors.indexOf(neighbor)
 
-      if (sender.path == environment.anchorPath)
+      if (context.system.actorSelection(sender.path) == environment)
         worker.updateEnvironmentRate(task)
       else worker.updateAgentRate(task)
 
@@ -144,7 +165,7 @@ trait WorkerActor extends Actor with ActorLogging {
 
     case Share(experiences) => worker updateExperiences(experiences)
 
-    case LoadRequest => sender ! Load(worker serviceTime)
+    case LoadRequest => sender ! Load(worker avgServiceTime)
     case NeighborRequest => sender ! Neighbors(worker neighbors)
     case EnvironmentRateRequest => sender ! Rate(worker environmentRate)
     case AgentRateRequest => sender ! Rate(worker agentRate)
