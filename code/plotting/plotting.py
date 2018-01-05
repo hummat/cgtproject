@@ -37,11 +37,20 @@ def _init():
         TABLEAU20[index] = (color[0] / 255., color[1] / 255., color[2] / 255.)
 
 
-def _generate_data(samples=10000, scale=10, skew=(2, 10)):
-    x = np.linspace(0, 1, samples)
-    data = scale * stats.beta.pdf(x, skew[0], skew[1])
-    # Todo: make better test data with pandas
-    np.savetxt('test_data.csv', data, delimiter=',')
+def _generate_data(samples=10000, scale=10, a=2, b=10):
+    noise = scale * np.random.beta(a, b, samples)
+    data = np.random.uniform(0, 50, samples)
+    csv_data = pd.DataFrame(data={
+        'trial': np.ones(samples).astype(int),
+        'step': np.random.randint(1, samples+1, samples),
+        'original': data,
+        'complete': data + noise,
+        'window': 115 * np.ones(samples).astype(int),
+        'sups': np.zeros(samples).astype(int),
+        'size': 100 * np.ones(samples).astype(int)
+    })
+    print(csv_data.head())
+    csv_data.to_csv('test_data.csv', sep=',', index=False)
 
 
 def _auc(means):
@@ -61,5 +70,7 @@ def figure1():
     tmp[means.index] = ewm_means
     _auc(means=tmp)
 
+
 _init()
-figure1()
+#figure1()
+_generate_data()
