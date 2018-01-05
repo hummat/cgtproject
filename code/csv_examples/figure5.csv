@@ -1,8 +1,0 @@
-supervised	baseline
-sum(s(t1))	sum(s(t1))
-sum(s(t2))	sum(s(t2))
-...		...
-sum(s(t10000))	sum(s(t10000))
-
-Summed (=total) service time s of all completed tasks per time step t for the supervised
-(1 supervisor, K=115) and baseline (no supervisor) configuration.
