@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 # from scipy import stats
 from matplotlib import pyplot as plt
+import datetime
 # from sklearn.linear_model import LogisticRegressionCV
 
 # Official Tableau 20 colors used for plotting
@@ -93,14 +94,15 @@ def _curve(data, ax, color, label):
     plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(y) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
 
-def figure4()
+def figure4():
+    pass
 
 
 def figure5(baseline, supervised, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     base = _process_input(baseline)
     sup = _process_input(supervised)
-    if base['y'].max() >= sup['y'].max():
+    if base['y'].mean() >= sup['y'].mean():
         _curve(baseline, ax, TABLEAU20[0], 'Baseline')
         _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
     else:
@@ -108,10 +110,9 @@ def figure5(baseline, supervised, save=False):
         _curve(baseline, ax, TABLEAU20[0], 'Baseline')
     ax.legend(fontsize=14, frameon=False)
     if save:
-        plt.savefig("figures/" + str(param) + ".png", bbox_inches='tight')
+        plt.savefig("figures/figure5_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
     else:
         plt.show()
 
 
 _init()
-#figure5('baseline5.csv', 'one_sup4.csv')
