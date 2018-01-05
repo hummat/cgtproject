@@ -8,6 +8,7 @@ import scala.util.Random
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import java.io._
+import vegas._
 
 /**
   * Main entry point
@@ -15,17 +16,17 @@ import java.io._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "baseline3.csv"
+  val filename = "sfilename.csv"
   val maxSteps = 10000
-  val numSupervisors = 0
+  val numSupervisors = 1
   val numSubordinates = 100
   val window = 10
-  val trials = 1
+  val trials = 10
   val noise = 0.0 // wtf is juice???
 
   // Other Parameters
-  val maxBranchingFactor = 3
-  val maxServiceTime = 20
+  val maxBranchingFactor = 10
+  val maxServiceTime = 50
 
   for (trial <- 1 to trials) {
     val system = ActorSystem("dynamicColearning")
@@ -113,7 +114,7 @@ case class Environment(maxStep: Int,
   var step = 1
   val bw = new BufferedWriter(new FileWriter(new File(filename)))
   bw.write("trial,step,original,complete,window,sups,size\n")
-
+  var arr = List.empty[(Int, Int)]
 
   def receive = {
     case Start =>
@@ -129,6 +130,7 @@ case class Environment(maxStep: Int,
       // Stop at maxTimeSteps
       if (step > maxStep) {
         bw.close()
+        Graph.graph(s"sdiff$trial", arr)
         context.system.terminate()
       }
 
@@ -143,8 +145,24 @@ case class Environment(maxStep: Int,
         s"$workers\n"
       bw.write(row)
 
-//      log.info("Environment received " + task.toString)
+      log.info(task.toString)
+      arr = (task.step, task.c - task.o) :: arr
   }
 }
 
 object Start
+
+object Graph {
+  def graph(name: String, arr: List[(Int, Int)]): Unit = {
+    val pw = new PrintWriter(new File(s"$name.html"))
+    implicit val renderer = vegas.render.ShowHTML(pw.write)
+    Vegas("Difference")
+      .withXY(arr)
+      .encodeX("x", Quantitative, title="Step")
+      .encodeY("y", Quantitative, title="Diff")
+      .mark(Bar)
+      .show
+    pw.close
+  }
+
+}
