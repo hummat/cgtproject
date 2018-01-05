@@ -16,12 +16,12 @@ import java.io._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "sfilename.csv"
+  val filename = "one_sup3.csv"
   val maxSteps = 10000
   val numSupervisors = 1
   val numSubordinates = 100
   val window = 10
-  val trials = 2
+  val trials = 10
   val noise = 0.0 // wtf is juice???
 
   // Other Parameters
@@ -29,6 +29,7 @@ object Main extends App {
   val maxServiceTime = 50
 
   val bw = new BufferedWriter(new FileWriter(new File(filename)))
+  bw.write("trial,step,original,complete,window,sups,size\n")
   for (trial <- 1 to trials) {
     val system = ActorSystem("dynamicColearning")
 
@@ -116,7 +117,6 @@ case class Environment(bw: BufferedWriter,
                        sups: Int)
   extends Actor with ActorLogging {
   var step = 1
-  bw.write("trial,step,original,complete,window,sups,size\n")
   var arr = List.empty[(Int, Int)]
 
   def receive = {

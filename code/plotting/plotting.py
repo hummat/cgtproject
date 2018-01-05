@@ -50,12 +50,12 @@ def _auc(means):
 
 
 def figure1():
-    df = pd.read_csv("baseline4.csv", delimiter=',')
+    df = pd.read_csv("one_sup3.csv", delimiter=',')
     data = pd.DataFrame({'step': df['step'] + df['complete'], 'time': df['complete'] - df['original']})
     groups = data.groupby('step')
     means = groups.mean()
 
-    ewm_means = means['time'].ewm(span=10000, ignore_na=True).mean()
+    ewm_means = means['time'].ewm(span=1000, ignore_na=True).mean()
     tmp = np.zeros(10050)
     tmp[:] = np.nan
     tmp[means.index] = ewm_means
