@@ -61,17 +61,19 @@ def _process_input(filename):
     return groups.mean()
 
 
-def _auc(means):
-    pass
+def _auc(y):
+    data = y[~np.isnan(y)]
+    data = data - data.min()
+    return np.trapz(data, dx=1)
 
 
 def _curve(data, ax, color, label):
     # Data processing
     means = _process_input(data)
-    tmp = pd.DataFrame({'y': np.nan * np.zeros(10000)})
+    tmp = pd.DataFrame({'y': np.nan * np.zeros(means.index.max())})
     tmp['y'][means.index - 1] = means['y']
-    y = tmp['y'].ewm(span=10000, ignore_na=True).mean()
-    x = np.arange(10000)
+    y = tmp['y'].ewm(span=means.index.max(), ignore_na=True).mean()
+    x = np.arange(means.index.max())
 
     # Plotting
     ax.spines['top'].set_visible(False)
@@ -87,15 +89,22 @@ def _curve(data, ax, color, label):
     ax.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
     ax.plot(x, y, color='black', linewidth=.5, label='_nolegend_')
     ax.fill_between(x, y, 0, color=color, label=label)
+    plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(y) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
 
 def figure5(baseline, supervised):
     fig, ax = plt.subplots(figsize=(12, 9))
-    _curve(baseline, ax, TABLEAU20[0], 'Baseline')
-    _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
+    base = _process_input(baseline)
+    sup = _process_input(supervised)
+    if base['y'].max() >= sup['y'].max():
+        _curve(baseline, ax, TABLEAU20[0], 'Baseline')
+        _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
+    else:
+        _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
+        _curve(baseline, ax, TABLEAU20[0], 'Baseline')
     ax.legend(fontsize=14, frameon=False)
     plt.show()
 
 
 _init()
-figure5('baseline5.csv', 'one_sup3.csv')
+figure5('baseline5.csv', 'one_sup4.csv')
