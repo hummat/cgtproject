@@ -94,8 +94,13 @@ def _curve(data, ax, color, label):
     plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(y) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
 
-def figure4():
-    pass
+def figure4(baseline, window50):
+    fig, ax = plt.subplots(figsize=(12, 9))
+    df = pd.read_csv(baseline, delimiter=',', dtype=int, header=0)
+    df['x'] = df['step'] + df['complete']
+    df['y'] = df['complete'] - df['original']
+    groups = df.groupby('x')
+
 
 
 def figure5(baseline, supervised, save=False):
@@ -116,3 +121,4 @@ def figure5(baseline, supervised, save=False):
 
 
 _init()
+#figure4('csv_data/baseline_w5.csv', 'csv_data/N_one_sup_w25.csv')
