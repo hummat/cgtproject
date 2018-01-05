@@ -8,7 +8,7 @@ import scala.util.Random
 import scala.concurrent.ExecutionContext.Implicits.global
 
 import java.io._
-import vegas._
+//import vegas._
 
 /**
   * Main entry point
@@ -21,18 +21,20 @@ object Main extends App {
   val numSupervisors = 1
   val numSubordinates = 100
   val window = 10
-  val trials = 10
+  val trials = 2
   val noise = 0.0 // wtf is juice???
 
   // Other Parameters
   val maxBranchingFactor = 10
   val maxServiceTime = 50
 
+  val bw = new BufferedWriter(new FileWriter(new File(filename)))
   for (trial <- 1 to trials) {
     val system = ActorSystem("dynamicColearning")
 
     val environment = system.actorOf(
       Props(classOf[Environment],
+        bw,
         maxSteps,
         numSubordinates,
         maxServiceTime,
@@ -50,6 +52,7 @@ object Main extends App {
     // Environment will terminate system when at maxSteps
     Await.ready(system.whenTerminated, Duration.Inf)
   }
+  bw.close()
 }
 
 case class Graph(system: ActorSystem,
@@ -103,7 +106,8 @@ case class SupervisorNode() extends BossActor with SupervisorActor {
 }
 
 // gross with so many inputs
-case class Environment(maxStep: Int,
+case class Environment(bw: BufferedWriter,
+                       maxStep: Int,
                        workers: Int,
                        maxServiceTime: Int,
                        filename: String,
@@ -112,7 +116,6 @@ case class Environment(maxStep: Int,
                        sups: Int)
   extends Actor with ActorLogging {
   var step = 1
-  val bw = new BufferedWriter(new FileWriter(new File(filename)))
   bw.write("trial,step,original,complete,window,sups,size\n")
   var arr = List.empty[(Int, Int)]
 
@@ -129,8 +132,7 @@ case class Environment(maxStep: Int,
 
       // Stop at maxTimeSteps
       if (step > maxStep) {
-        bw.close()
-        Graph.graph(s"sdiff$trial", arr)
+//        Graph.graph(s"sdiff$trial", arr)
         context.system.terminate()
       }
 
@@ -146,23 +148,23 @@ case class Environment(maxStep: Int,
       bw.write(row)
 
       log.info(task.toString)
-      arr = (task.step, task.c - task.o) :: arr
+//      arr = (task.step, task.c - task.o) :: arr
   }
 }
 
 object Start
 
-object Graph {
-  def graph(name: String, arr: List[(Int, Int)]): Unit = {
-    val pw = new PrintWriter(new File(s"$name.html"))
-    implicit val renderer = vegas.render.ShowHTML(pw.write)
-    Vegas("Difference")
-      .withXY(arr)
-      .encodeX("x", Quantitative, title="Step")
-      .encodeY("y", Quantitative, title="Diff")
-      .mark(Bar)
-      .show
-    pw.close
-  }
-
-}
+//object Graph {
+//  def graph(name: String, arr: List[(Int, Int)]): Unit = {
+//    val pw = new PrintWriter(new File(s"$name.html"))
+//    implicit val renderer = vegas.render.ShowHTML(pw.write)
+//    Vegas("Difference")
+//      .withXY(arr)
+//      .encodeX("x", Quantitative, title="Step")
+//      .encodeY("y", Quantitative, title="Diff")
+//      .mark(Bar)
+//      .show
+//    pw.close
+//  }
+//
+//}
