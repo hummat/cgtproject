@@ -16,10 +16,10 @@ import java.io._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "N_one_sup_w25.csv"
+  val filename = "N_one_sup_w25n325.csv"
   val maxSteps = 10000
   val numSupervisors = 1
-  val numSubordinates = 100
+  val numSubordinates = 325
   val window = 25
   val trials = 10
   val noise = 0.0 // wtf is juice???
