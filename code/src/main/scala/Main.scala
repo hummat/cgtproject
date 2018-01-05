@@ -16,9 +16,9 @@ import vegas._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "baseline3.csv"
+  val filename = "sfilename.csv"
   val maxSteps = 10000
-  val numSupervisors = 0
+  val numSupervisors = 1
   val numSubordinates = 100
   val window = 10
   val trials = 10
@@ -130,7 +130,7 @@ case class Environment(maxStep: Int,
       // Stop at maxTimeSteps
       if (step > maxStep) {
         bw.close()
-        Graph.graph(s"diff$trial", arr)
+        Graph.graph(s"sdiff$trial", arr)
         context.system.terminate()
       }
 
