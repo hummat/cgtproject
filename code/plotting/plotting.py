@@ -99,8 +99,9 @@ def figure4(baseline, window50):
     df = pd.read_csv(baseline, delimiter=',', dtype=int, header=0)
     df['x'] = df['step'] + df['complete']
     df['y'] = df['complete'] - df['original']
-    groups = df.groupby('x')
-
+    groups = df.groupby('trial')
+    for name, group in groups:
+        print(_auc(group['y']))
 
 
 def figure5(baseline, supervised, save=False):
@@ -121,4 +122,4 @@ def figure5(baseline, supervised, save=False):
 
 
 _init()
-#figure4('csv_data/baseline_w5.csv', 'csv_data/N_one_sup_w25.csv')
+figure4('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w50.csv')
