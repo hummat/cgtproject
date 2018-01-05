@@ -15,7 +15,7 @@ __data__ = "04.01.2017"
 import numpy as np
 #import statsmodels.api as sm
 import pandas as pd
-from scipy import stats
+# from scipy import stats
 from matplotlib import pyplot as plt
 #from sklearn.linear_model import LogisticRegressionCV
 
@@ -107,4 +107,4 @@ def figure5(baseline, supervised):
 
 
 _init()
-#figure5('baseline5.csv', 'one_sup4.csv')
+figure5('baseline5.csv', 'one_sup4.csv')
