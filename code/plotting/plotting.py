@@ -53,24 +53,27 @@ def _generate_data(samples=10000, scale=10, a=2, b=10):
     csv_data.to_csv('test_data.csv', sep=',', index=False)
 
 
+def _process_input(filename):
+    df = pd.read_csv(filename, delimiter=',', dtype=int, header=0)
+    df['x'] = df['step'] + df['complete']
+    df['y'] = df['complete'] - df['original']
+    groups = df.groupby('x')
+    return groups.mean()
+
+
 def _auc(means):
     plt.plot(means)
     plt.show()
 
 
 def figure1():
-    df = pd.read_csv("baseline4.csv", delimiter=',')
-    data = pd.DataFrame({'step': df['step'] + df['complete'], 'time': df['complete'] - df['original']})
-    groups = data.groupby('step')
-    means = groups.mean()
-
-    ewm_means = means['time'].ewm(span=10000, ignore_na=True).mean()
-    tmp = np.zeros(10050)
+    means = _process_input('baseline5.csv')
+    ewm_means = means['y'].ewm(span=10000, ignore_na=True).mean()
+    tmp = np.zeros(10001)
     tmp[:] = np.nan
     tmp[means.index] = ewm_means
     _auc(means=tmp)
 
 
 _init()
-#figure1()
-_generate_data()
+figure1()
