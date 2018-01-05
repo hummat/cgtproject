@@ -107,4 +107,4 @@ def figure5(baseline, supervised):
 
 
 _init()
-figure5('baseline5.csv', 'one_sup4.csv')
+#figure5('baseline5.csv', 'one_sup4.csv')
