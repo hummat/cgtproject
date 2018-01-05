@@ -13,11 +13,11 @@ __email__ = "matthias.humt@tum.de"
 __data__ = "04.01.2017"
 
 import numpy as np
-#import statsmodels.api as sm
+# import statsmodels.api as sm
 import pandas as pd
 # from scipy import stats
 from matplotlib import pyplot as plt
-#from sklearn.linear_model import LogisticRegressionCV
+# from sklearn.linear_model import LogisticRegressionCV
 
 # Official Tableau 20 colors used for plotting
 # http://tableaufriction.blogspot.nl/2012/11/finally-you-can-use-tableau-data-colors.html
@@ -38,6 +38,7 @@ def _init():
 
 
 def _generate_data(samples=10000, scale=10, a=2, b=10):
+    # Todo: work in progress
     noise = scale * np.random.beta(a, b, samples)
     data = np.random.uniform(0, 50, samples)
     csv_data = pd.DataFrame(data={
@@ -92,7 +93,10 @@ def _curve(data, ax, color, label):
     plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(y) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
 
-def figure5(baseline, supervised):
+def figure4()
+
+
+def figure5(baseline, supervised, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     base = _process_input(baseline)
     sup = _process_input(supervised)
@@ -103,7 +107,10 @@ def figure5(baseline, supervised):
         _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
         _curve(baseline, ax, TABLEAU20[0], 'Baseline')
     ax.legend(fontsize=14, frameon=False)
-    plt.show()
+    if save:
+        plt.savefig("figures/" + str(param) + ".png", bbox_inches='tight')
+    else:
+        plt.show()
 
 
 _init()
