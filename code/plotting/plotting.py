@@ -24,6 +24,9 @@ TABLEAU20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
              (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
              (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
              (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+OUTLIERS = {
+    'csv_data/N_baseline_w25n100.csv': [11]
+}
 
 
 def _init():
@@ -54,6 +57,10 @@ def _generate_data(samples=10000, scale=10, a=2, b=10):
 
 def _process_input(filename):
     df = pd.read_csv(filename, delimiter=',', dtype=int, header=0)
+    if filename in OUTLIERS:
+        for outlier in OUTLIERS[filename]:
+            df = df[df['trial'] != outlier]
+            df.loc[df['trial'] > outlier] -= 1
     df['x'] = df['step'] + df['complete']
     df['y'] = df['complete'] - df['original']
     return df
@@ -115,7 +122,7 @@ def _box(trials, base_trials=None):
         return box / base_box.mean()
 
 
-def line_plot(filename, avrg=False, save=False):
+def line_plot(filename, outliers=list(), avrg=False, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     input_ = _process_input(filename)
     if avrg:
@@ -124,8 +131,13 @@ def line_plot(filename, avrg=False, save=False):
     else:
         trials = input_.groupby('trial')
         for name, trial in trials:
-            mean = trial.groupby('x').mean()
-            _curve(mean, ax, color=TABLEAU20[name], label=str(name), fill=False, area=False)
+            if name not in outliers:
+                mean = trial.groupby('x').mean()
+                if name <= 20:
+                    c = TABLEAU20[name - 1]
+                else:
+                    c = 'black'
+                _curve(mean, ax, color=c, label=str(name), fill=False, area=False)
         ax.legend(fontsize=14, frameon=False)
     if save:
         plt.savefig("figures/line_" + filename + ".png", bbox_inches='tight')
@@ -191,7 +203,7 @@ def figure4(baseline, windows, labels=None, save=False):
         plt.show()
 
 
-def figure5(baseline, supervised, save=False):
+def figure5(baseline, supervised, outliers=list(), save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     base = _process_input(baseline)
     base_mean = base.groupby('x').mean()
@@ -241,7 +253,7 @@ fig7_csv = [
     'csv_data/N_one_sup_w25.csv',
     'csv_data/N_one_sup_w25n100s4.csv',
     'csv_data/N_one_sup_w25n100s9.csv',
-    'csv_data/baseline_w10.csv'
+    'csv_data/N_baseline_w25n100.csv'
 ]
 fig7_labels = [
     '1 Sup',
@@ -255,8 +267,8 @@ fig8_csv = [
 fig8_labels = [
     '324'
 ]
-#line_plot('csv_data/N_one_sup_w25n100s1.csv')
+#line_plot('csv_data/N_baseline_w25n100.csv')
 #figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=fig4_labels)
-#figure5('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w25.csv')
+#figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25n100s1.csv')
 #figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels)
 #figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
