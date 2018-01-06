@@ -13,12 +13,9 @@ __email__ = "matthias.humt@tum.de"
 __date__ = "06.01.2017"
 
 import numpy as np
-# import statsmodels.api as sm
 import pandas as pd
-# from scipy import stats
 from matplotlib import pyplot as plt
 import datetime
-# from sklearn.linear_model import LogisticRegressionCV
 
 # Official Tableau 20 colors used for plotting
 # http://tableaufriction.blogspot.nl/2012/11/finally-you-can-use-tableau-data-colors.html
@@ -94,7 +91,7 @@ def _curve(mean, ax, color, label=None, fill=False, area=False):
         ax.plot(x, y, color='black', linewidth=.5, label='_nolegend_')
         ax.fill_between(x, y, 0, color=color, label=label)
     else:
-        ax.plot(x, y, color=color, linewidth=1)
+        ax.plot(x, y, color=color, label=label)
     if area:
         plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
@@ -119,7 +116,7 @@ def _box(trials, base_trials=None):
 
 
 def line_plot(filename, avrg=False, save=False):
-    ig, ax = plt.subplots(figsize=(12, 9))
+    fig, ax = plt.subplots(figsize=(12, 9))
     input_ = _process_input(filename)
     if avrg:
         mean = input_.groupby('x').mean()
@@ -129,13 +126,14 @@ def line_plot(filename, avrg=False, save=False):
         for name, trial in trials:
             mean = trial.groupby('x').mean()
             _curve(mean, ax, color=TABLEAU20[name], label=str(name), fill=False, area=False)
+        ax.legend(fontsize=14, frameon=False)
     if save:
         plt.savefig("figures/line_" + filename + ".png", bbox_inches='tight')
     else:
         plt.show()
 
 
-def box_plot(data, compare=None, ax=None, labels=None, colors='black', median=False, notch=False, save=False):
+def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False, notch=False, save=False):
     input_ = _process_input(data)
     trials = input_.groupby('trial')
     windows = list()
@@ -162,14 +160,17 @@ def box_plot(data, compare=None, ax=None, labels=None, colors='black', median=Fa
         box_list = list()
         for window in windows:
             box_list.append(_box(window, trials))
-        params = ax.boxplot(box_list, labels=labels, notch=notch)
+        params = ax.boxplot(box_list, labels=labels, notch=notch, patch_artist=color)
+        if color:
+            for index, box in enumerate(params['boxes']):
+                box.set_color(TABLEAU20[index])
+        median_y = list()
+        median_x = list()
+        for med in params['medians']:
+            median_y.append(med.get_ydata()[0])
+            median_x.append(.5 * (med.get_xdata()[0] + med.get_xdata()[1]))
+            med.set_color('black')
         if median:
-            median_y = list()
-            median_x = list()
-            for med in params['medians']:
-                median_y.append(med.get_ydata()[0])
-                median_x.append(.5 * (med.get_xdata()[0] + med.get_xdata()[1]))
-                med.set_color('black')
             ax.plot(median_x, median_y, color=TABLEAU20[6], linestyle='dashed', marker='.', markersize=10)
     if ax is None:
         if save:
@@ -211,17 +212,31 @@ def figure5(baseline, supervised, save=False):
 
 def figure7(baseline, filenames, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
-    if labels is None:
-        box_plot(data=baseline, compare=filenames, ax=ax, notch=True)
-    else:
-        box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, notch=True)
+    box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, color=True, notch=True)
     if save:
-        plt.savefig("figures/figure4_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
+        plt.savefig("figures/figure7_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
+    else:
+        plt.show()
+
+
+def figure8(baseline, filenames, labels=None, save=False):
+    fig, ax = plt.subplots(figsize=(12, 9))
+    box_plot(data=baseline, compare=filenames, ax=ax, labels=labels)
+    if save:
+        plt.savefig("figures/figure8_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
     else:
         plt.show()
 
 
 _init()
+fig4_csv = [
+    'csv_data/N_one_sup_w25.csv',
+    'csv_data/N_one_sup_w50.csv',
+    'csv_data/N_one_sup_w115.csv'
+]
+fig4_labels = [
+
+]
 fig7_csv = [
     'csv_data/N_one_sup_w25.csv',
     'csv_data/N_one_sup_w25n100s4.csv',
@@ -234,11 +249,14 @@ fig7_labels = [
     '9 Sup',
     'Baseline / No Sup'
 ]
-#figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels)
-fig4_windows = [
-    'csv_data/N_one_sup_w25.csv',
-    'csv_data/N_one_sup_w50.csv',
-    'csv_data/N_one_sup_w115.csv'
+fig8_csv = [
+    'csv_data/N_one_sup_w25n729.csv'
 ]
-#figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=['25', '50', '115'])
-#figure5('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w25n100s1.csv', save=True)
+fig8_labels = [
+    '324'
+]
+#line_plot('csv_data/N_one_sup_w25n100s1.csv')
+#figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=fig4_labels)
+#figure5('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w25.csv')
+#figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels)
+#figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
