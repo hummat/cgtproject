@@ -10,7 +10,7 @@ Those Python scripts can be used to generate the results found in the report of 
 
 __author__ = "Matthias Humt (0545773)"
 __email__ = "matthias.humt@tum.de"
-__data__ = "04.01.2017"
+__date__ = "06.01.2017"
 
 import numpy as np
 # import statsmodels.api as sm
@@ -59,23 +59,24 @@ def _process_input(filename):
     df = pd.read_csv(filename, delimiter=',', dtype=int, header=0)
     df['x'] = df['step'] + df['complete']
     df['y'] = df['complete'] - df['original']
-    groups = df.groupby('x')
-    return groups.mean()
+    return df
 
 
-def _auc(y):
+def _auc(mean):
+    tmp = pd.DataFrame({'y': np.nan * np.zeros(mean.index.max())})
+    tmp['y'][mean.index - 1] = mean['y']
+    y = tmp['y'].ewm(span=mean.index.max(), ignore_na=True).mean()
     data = y[~np.isnan(y)]
     data = data - data.min()
     return np.trapz(data, dx=1)
 
 
-def _curve(data, ax, color, label):
+def _curve(mean, ax, color, label=None, fill=False, area=False):
     # Data processing
-    means = _process_input(data)
-    tmp = pd.DataFrame({'y': np.nan * np.zeros(means.index.max())})
-    tmp['y'][means.index - 1] = means['y']
-    y = tmp['y'].ewm(span=means.index.max(), ignore_na=True).mean()
-    x = np.arange(means.index.max())
+    tmp = pd.DataFrame({'y': np.nan * np.zeros(mean.index.max())})
+    tmp['y'][mean.index - 1] = mean['y']
+    y = tmp['y'].ewm(span=mean.index.max(), ignore_na=True).mean()
+    x = np.arange(mean.index.max())
 
     # Plotting
     ax.spines['top'].set_visible(False)
@@ -89,31 +90,125 @@ def _curve(data, ax, color, label):
     ax.set_ylabel('Service Time', fontsize=16, labelpad=20)
     ax.set_xlabel('Time', fontsize=16, labelpad=20)
     ax.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
-    ax.plot(x, y, color='black', linewidth=.5, label='_nolegend_')
-    ax.fill_between(x, y, 0, color=color, label=label)
-    plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(y) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
+    if fill:
+        ax.plot(x, y, color='black', linewidth=.5, label='_nolegend_')
+        ax.fill_between(x, y, 0, color=color, label=label)
+    else:
+        ax.plot(x, y, color=color, linewidth=1)
+    if area:
+        plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
 
-def figure4(baseline, window50):
+def _box(trials, base_trials=None):
+    if base_trials is None:
+        box = np.empty(len(trials), dtype=np.ndarray)
+        for name, trial in trials:
+            mean = trial.groupby('x').mean()
+            box[name - 1] = _auc(mean)
+        return box
+    else:
+        base_box = np.empty(len(base_trials), dtype=np.ndarray)
+        for name, trial in base_trials:
+            base_mean = trial.groupby('x').mean()
+            base_box[name - 1] = _auc(base_mean)
+        box = np.empty(len(trials), dtype=np.ndarray)
+        for name, trial in trials:
+            mean = trial.groupby('x').mean()
+            box[name - 1] = _auc(mean)
+        return box / base_box.mean()
+
+
+def line_plot(filename, avrg=False, save=False):
+    ig, ax = plt.subplots(figsize=(12, 9))
+    input_ = _process_input(filename)
+    if avrg:
+        mean = input_.groupby('x').mean()
+        _curve(mean, ax, color=TABLEAU20[0], fill=True, area=True)
+    else:
+        trials = input_.groupby('trial')
+        for name, trial in trials:
+            mean = trial.groupby('x').mean()
+            _curve(mean, ax, color=TABLEAU20[name], label=str(name), fill=False, area=False)
+    if save:
+        plt.savefig("figures/line_" + filename + ".png", bbox_inches='tight')
+    else:
+        plt.show()
+
+
+def box_plot(filename, compare=None, ax=None, labels=None, median=False, save=False):
+    # Todo: Make proper grid and change color.
+    input_ = _process_input(filename)
+    trials = input_.groupby('trial')
+    windows = list()
+    if compare is not None:
+        for window in compare:
+            comp = _process_input(window)
+            windows.append(comp.groupby('trial'))
+    if ax is None:
+        fig, ax = plt.subplots(figsize=(12, 9))
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', which='both', bottom='off', top='off',
+                   labelbottom='on', left='on', right='off', labelleft='on', direction='out')
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
+    ax.set_xlabel('Window Size', fontsize=16, labelpad=20)
+    ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
+    ax.set_ylim([0, 4])
+    if compare is None:
+        if labels is None:
+            ax.boxplot([_box(trials)])
+        else:
+            ax.boxplot([_box(trials)], labels=labels)
+    else:
+        box_list = list()
+        for window in windows:
+            box_list.append(_box(window, trials))
+        if labels is None:
+            params = ax.boxplot(box_list)
+        else:
+            params = ax.boxplot(box_list, labels=labels)
+        if median:
+            median_y = list()
+            median_x = list()
+            for med in params['medians']:
+                median_y.append(med.get_ydata()[0])
+                median_x.append(.5 * (med.get_xdata()[0] + med.get_xdata()[1]))
+                med.set_color('black')
+            ax.plot(median_x, median_y, color='red', linestyle='dashed', marker='.')
+    if ax is None:
+        if save:
+            plt.savefig("figures/box_" + filename + ".png", bbox_inches='tight')
+        else:
+            plt.show()
+
+
+def figure4(baseline, windows, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
-    df = pd.read_csv(baseline, delimiter=',', dtype=int, header=0)
-    df['x'] = df['step'] + df['complete']
-    df['y'] = df['complete'] - df['original']
-    groups = df.groupby('trial')
-    for name, group in groups:
-        print(_auc(group['y']))
+    if labels is None:
+        box_plot(baseline, windows, ax, median=True)
+    else:
+        box_plot(baseline, windows, ax, labels=labels, median=True)
+    if save:
+        plt.savefig("figures/figure4_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
+    else:
+        plt.show()
 
 
 def figure5(baseline, supervised, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     base = _process_input(baseline)
+    base_mean = base.groupby('x').mean()
     sup = _process_input(supervised)
+    sup_mean = sup.groupby('x').mean()
     if base['y'].mean() >= sup['y'].mean():
-        _curve(baseline, ax, TABLEAU20[0], 'Baseline')
-        _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
+        _curve(base_mean, ax, color=TABLEAU20[0], label='Baseline', fill=True, area=True)
+        _curve(sup_mean, ax, color=TABLEAU20[2], label='1 Supervisor', fill=True, area=True)
     else:
-        _curve(supervised, ax, TABLEAU20[2], '1 Supervisor')
-        _curve(baseline, ax, TABLEAU20[0], 'Baseline')
+        _curve(sup_mean, ax, color=TABLEAU20[2], label='1 Supervisor', fill=True, area=True)
+        _curve(base_mean, ax, color=TABLEAU20[0], label='Baseline', fill=True, area=True)
     ax.legend(fontsize=14, frameon=False)
     if save:
         plt.savefig("figures/figure5_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
@@ -121,5 +216,15 @@ def figure5(baseline, supervised, save=False):
         plt.show()
 
 
+def figure7(save=False):
+    pass
+
+
 _init()
-figure4('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w50.csv')
+fig4_windows = [
+    'csv_data/N_one_sup_w25.csv',
+    'csv_data/N_one_sup_w50.csv',
+    'csv_data/N_one_sup_w115.csv'
+    ]
+figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=['25', '50', '115'])
+#figure5('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w50.csv')
