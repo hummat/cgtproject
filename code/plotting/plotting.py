@@ -135,9 +135,8 @@ def line_plot(filename, avrg=False, save=False):
         plt.show()
 
 
-def box_plot(filename, compare=None, ax=None, labels=None, median=False, save=False):
-    # Todo: Make proper grid and change color.
-    input_ = _process_input(filename)
+def box_plot(data, compare=None, ax=None, labels=None, colors='black', median=False, notch=False, save=False):
+    input_ = _process_input(data)
     trials = input_.groupby('trial')
     windows = list()
     if compare is not None:
@@ -152,24 +151,18 @@ def box_plot(filename, compare=None, ax=None, labels=None, median=False, save=Fa
     ax.tick_params(axis='both', which='both', bottom='off', top='off',
                    labelbottom='on', left='on', right='off', labelleft='on', direction='out')
     plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
+    plt.yticks(np.arange(0, 3, .5), fontsize=14)
     ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
     ax.set_xlabel('Window Size', fontsize=16, labelpad=20)
     ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
-    ax.set_ylim([0, 4])
+    ax.set_ylim([0, 3])
     if compare is None:
-        if labels is None:
-            ax.boxplot([_box(trials)])
-        else:
-            ax.boxplot([_box(trials)], labels=labels)
+        ax.boxplot([_box(trials)], labels=labels, notch=notch)
     else:
         box_list = list()
         for window in windows:
             box_list.append(_box(window, trials))
-        if labels is None:
-            params = ax.boxplot(box_list)
-        else:
-            params = ax.boxplot(box_list, labels=labels)
+        params = ax.boxplot(box_list, labels=labels, notch=notch)
         if median:
             median_y = list()
             median_x = list()
@@ -177,10 +170,10 @@ def box_plot(filename, compare=None, ax=None, labels=None, median=False, save=Fa
                 median_y.append(med.get_ydata()[0])
                 median_x.append(.5 * (med.get_xdata()[0] + med.get_xdata()[1]))
                 med.set_color('black')
-            ax.plot(median_x, median_y, color='red', linestyle='dashed', marker='.')
+            ax.plot(median_x, median_y, color=TABLEAU20[6], linestyle='dashed', marker='.', markersize=10)
     if ax is None:
         if save:
-            plt.savefig("figures/box_" + filename + ".png", bbox_inches='tight')
+            plt.savefig("figures/box_" + data + ".png", bbox_inches='tight')
         else:
             plt.show()
 
@@ -216,15 +209,36 @@ def figure5(baseline, supervised, save=False):
         plt.show()
 
 
-def figure7(save=False):
-    pass
+def figure7(baseline, filenames, labels=None, save=False):
+    fig, ax = plt.subplots(figsize=(12, 9))
+    if labels is None:
+        box_plot(data=baseline, compare=filenames, ax=ax, notch=True)
+    else:
+        box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, notch=True)
+    if save:
+        plt.savefig("figures/figure4_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
+    else:
+        plt.show()
 
 
 _init()
+fig7_csv = [
+    'csv_data/N_one_sup_w25.csv',
+    'csv_data/N_one_sup_w25n100s4.csv',
+    'csv_data/N_one_sup_w25n100s9.csv',
+    'csv_data/baseline_w10.csv'
+]
+fig7_labels = [
+    '1 Sup',
+    '4 Sup',
+    '9 Sup',
+    'Baseline / No Sup'
+]
+#figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels)
 fig4_windows = [
     'csv_data/N_one_sup_w25.csv',
     'csv_data/N_one_sup_w50.csv',
     'csv_data/N_one_sup_w115.csv'
-    ]
-figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=['25', '50', '115'])
-#figure5('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w50.csv')
+]
+#figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=['25', '50', '115'])
+#figure5('csv_data/baseline_w10.csv', 'csv_data/N_one_sup_w25n100s1.csv', save=True)
