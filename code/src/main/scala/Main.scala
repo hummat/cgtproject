@@ -16,17 +16,17 @@ import java.io._
 object Main extends App {
 
   // Experiment Parameters
-  val filename = "N_9sup_n729_scaled.csv"
+  val filename = "N_9sup_n324_scaled2.csv"
   val maxSteps = 10000
   val numSupervisors = 9
-  val numSubordinates = 729
+  val numSubordinates = 324
   val window = 25
   val trials = 10
   val noise = 0.0 // wtf is juice???
 
   // Other Parameters
-  val maxBranchingFactor = 70
-  val maxServiceTime = 350
+  val maxBranchingFactor = 10
+  val maxServiceTime = 150
 
   val bw = new BufferedWriter(new FileWriter(new File(filename)))
   bw.write("trial,step,original,complete,window,sups,size\n")
