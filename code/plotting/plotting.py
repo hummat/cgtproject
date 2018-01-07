@@ -27,8 +27,16 @@ TABLEAU20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
 OUTLIERS = {
     'csv_data/N_baseline_w25n100.csv': [11, 13, 14, 23, 26],
     'csv_data/N_one_sup_w25.csv': [6, 15],
-    #'csv_data/N_four_sup_w25.csv': [5, 11, 14, 25],
-    'csv_data/N_nine_sup_w25.csv': [15, 20, 28]
+    # 'csv_data/N_four_sup_w25.csv': [5, 11, 14, 25],
+    'csv_data/N_nine_sup_w25.csv': [15, 20, 28],
+    'csv_data/N_one_sup_w5.csv': [1, 23],
+    'csv_data/N_one_sup_w10.csv': [9, 11, 19, 27, 28],
+    'csv_data/N_one_sup_w50.csv': [7, 16],
+    'csv_data/N_one_sup_w75.csv': [1, 3, 22, 29],
+    'csv_data/N_one_sup_w100.csv': [7, 22, 27],
+    'csv_data/N_one_sup_w115.csv': [23, 30],
+    'csv_data/N_one_sup_w125.csv': [6, 20, 28, 29],
+    'csv_data/N_one_sup_w200.csv': [21]
 }
 
 
@@ -49,7 +57,7 @@ def _generate_data(samples=10000, scale=10, a=2, b=10):
     data = np.random.uniform(0, 50, samples)
     csv_data = pd.DataFrame(data={
         'trial': np.ones(samples).astype(int),
-        'step': np.random.randint(1, samples+1, samples),
+        'step': np.random.randint(1, samples + 1, samples),
         'original': data,
         'complete': data + noise,
         'window': 115 * np.ones(samples).astype(int),
@@ -109,7 +117,8 @@ def _curve(mean, ax, color, label=None, fill=False, area=False):
             c = 'white'
         else:
             c = 'black'
-        ax.text(1200, y.mean() - 2, 'Area: ' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20, color=c)
+        ax.text(1200, y.mean() - 2, 'Area: ' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20,
+                color=c)
 
 
 def _box(trials, base_trials=None):
@@ -180,7 +189,7 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
         box_list = list()
         for window in windows:
             box_list.append(_box(window, trials))
-        params = ax.boxplot(box_list, labels=labels, notch=notch, patch_artist=color, showmeans=True, showcaps=False)
+        params = ax.boxplot(box_list, labels=labels, notch=notch, patch_artist=color, showmeans=color, showcaps=not color)
         if color:
             for index, box in enumerate(params['boxes']):
                 box.set_facecolor(TABLEAU20[index])
@@ -202,10 +211,7 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
 def figure4(baseline, windows, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     ax.set_xlabel('Window Size', fontsize=16, labelpad=20)
-    if labels is None:
-        box_plot(baseline, windows, ax, median=True)
-    else:
-        box_plot(baseline, windows, ax, labels=labels, median=True)
+    box_plot(baseline, windows, ax, labels=labels, median=True)
     if save:
         plt.savefig("figures/figure4_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
     else:
@@ -220,9 +226,9 @@ def figure5(baseline, supervised, save=False):
     sup_mean = sup.groupby('x').mean()
     if base['y'].mean() >= sup['y'].mean():
         _curve(base_mean, ax, color=TABLEAU20[0], label='Baseline', fill=True, area=True)
-        _curve(sup_mean, ax, color=TABLEAU20[2], label='1 Supervisor', fill=True, area=True)
+        _curve(sup_mean, ax, color=TABLEAU20[3], label='1 Supervisor', fill=True, area=True)
     else:
-        _curve(sup_mean, ax, color=TABLEAU20[2], label='1 Supervisor', fill=True, area=True)
+        _curve(sup_mean, ax, color=TABLEAU20[3], label='1 Supervisor', fill=True, area=True)
         _curve(base_mean, ax, color=TABLEAU20[0], label='Baseline', fill=True, area=True)
     ax.legend(fontsize=14, frameon=False)
     if save:
@@ -253,12 +259,24 @@ def figure8(baseline, filenames, labels=None, save=False):
 
 _init()
 fig4_csv = [
-    'csv_data/N_one_sup_w25.csv',
+    'csv_data/N_one_sup_w5.csv',
+    'csv_data/N_one_sup_w10.csv',
     'csv_data/N_one_sup_w50.csv',
-    'csv_data/N_one_sup_w115.csv'
+    'csv_data/N_one_sup_w75.csv',
+    'csv_data/N_one_sup_w100.csv',
+    'csv_data/N_one_sup_w115.csv',
+    'csv_data/N_one_sup_w125.csv',
+    'csv_data/N_one_sup_w200.csv'
 ]
 fig4_labels = [
-
+    '5',
+    '10',
+    '50',
+    '75',
+    '100',
+    '115',
+    '125',
+    '200'
 ]
 fig7_csv = [
     'csv_data/N_one_sup_w25.csv',
@@ -278,8 +296,8 @@ fig8_csv = [
 fig8_labels = [
     '324'
 ]
-#line_plot('csv_data/N_baseline_w25n100.csv')
-#figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=fig4_labels)
-#figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
-#figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
-#figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
+#line_plot('csv_data/N_one_sup_w200.csv')
+#figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
+# figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
+# figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
+# figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
