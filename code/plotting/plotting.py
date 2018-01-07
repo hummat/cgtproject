@@ -36,7 +36,10 @@ OUTLIERS = {
     'csv_data/N_one_sup_w100.csv': [7, 22, 27],
     'csv_data/N_one_sup_w115.csv': [23, 30],
     'csv_data/N_one_sup_w125.csv': [6, 20, 28, 29],
-    'csv_data/N_one_sup_w200.csv': [21]
+    'csv_data/N_one_sup_w200.csv': [21],
+    'csv_data/N_one_sup_w300.csv': [25],
+    'csv_data/N_one_sup_w400.csv': [10, 30],
+    'csv_data/N_one_sup_w500.csv': [10, 26]
 }
 
 
@@ -250,7 +253,7 @@ def figure7(baseline, filenames, labels=None, save=False):
 def figure8(baseline, filenames, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     ax.set_xlabel('Network Size', fontsize=16, labelpad=20)
-    box_plot(data=baseline, compare=filenames, ax=ax, labels=labels)
+    box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, color=True)
     if save:
         plt.savefig("figures/figure8_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
     else:
@@ -266,7 +269,10 @@ fig4_csv = [
     'csv_data/N_one_sup_w100.csv',
     'csv_data/N_one_sup_w115.csv',
     'csv_data/N_one_sup_w125.csv',
-    'csv_data/N_one_sup_w200.csv'
+    'csv_data/N_one_sup_w200.csv',
+    'csv_data/N_one_sup_w300.csv',
+    'csv_data/N_one_sup_w400.csv',
+    'csv_data/N_one_sup_w500.csv'
 ]
 fig4_labels = [
     '5',
@@ -276,7 +282,10 @@ fig4_labels = [
     '100',
     '115',
     '125',
-    '200'
+    '200',
+    '300',
+    '400',
+    '500'
 ]
 fig7_csv = [
     'csv_data/N_one_sup_w25.csv',
@@ -291,13 +300,13 @@ fig7_labels = [
     'Baseline / No Sup'
 ]
 fig8_csv = [
-    'csv_data/N_one_sup_w25n729.csv'
+    'csv_data/N_one_sup_w25.csv'
 ]
 fig8_labels = [
-    '324'
+    '100'
 ]
-#line_plot('csv_data/N_one_sup_w200.csv')
+#line_plot('csv_data/N_one_sup_w500.csv')
 #figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
 # figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
-# figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
+#figure8(baseline='csv_data/N_baseline_w25n100.csv', filenames=fig8_csv, labels=fig8_labels)
