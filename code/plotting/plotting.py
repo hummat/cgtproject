@@ -268,11 +268,11 @@ def figure8(baselines, sizes, labels=None, save=False):
     ax.tick_params(axis='both', which='both', bottom='off', top='off',
                    labelbottom='on', left='on', right='off', labelleft='on', direction='out')
     plt.xticks(fontsize=14)
-    plt.yticks(np.arange(0, 2, .25), fontsize=14)
+    plt.yticks(np.arange(.2, 1.6, .1), fontsize=14)
     ax.set_xlabel('Network Size', fontsize=16, labelpad=20)
     ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
     ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
-    ax.set_ylim([0, 2])
+    ax.set_ylim([.2, 1.6])
     box_list = list()
     for size, base in zip(size_list, base_list):
         box_list.append(_box(size, base))
@@ -329,19 +329,19 @@ fig7_labels = [
 ]
 fig8_csv = [
     'csv_data/N_baseline_w25n100.csv',
-    'csv_data/N_baseline_w25n100.csv',
-    'csv_data/N_baseline_w25n100.csv',
+    'csv_data/N_baseline_n324.csv',
+    'csv_data/N_baseline_n729.csv',
     'csv_data/N_nine_sup_w25.csv',
-    'csv_data/N_nine_sup_w25.csv',
-    'csv_data/N_nine_sup_w25.csv'
+    'csv_data/N_9sup_n324.csv',
+    'csv_data/N_9sup_n729.csv'
 ]
 fig8_labels = [
     '100',
     '324',
     '729'
 ]
-# line_plot('csv_data/N_baseline_w25n100.csv')
+# line_plot('csv_data/N_9sup_n324.csv')
 # figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
 # figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
-# figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels)
+figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels, save=True)
