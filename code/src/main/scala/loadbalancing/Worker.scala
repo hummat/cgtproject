@@ -43,11 +43,12 @@ case class Worker(selfAS: ActorSelection,
       val a = environmentRates.head
       val b = environmentRates.last
       if ((a - b) == 0) 0.0 else 1.0 / (a - b)
-//      var a = environmentRates.head
-//      1 / ((for (b <- environmentRates.tail) yield {
-//        val t = a - b; a = b; t
-//      }).sum.toDouble / (environmentRates.length - 1))
-//    }
+      //      var a = environmentRates.head
+      //      1 / ((for (b <- environmentRates.tail) yield {
+      //        val t = a - b; a = b; t
+      //      }).sum.toDouble / (environmentRates.length - 1))
+      //    }
+    }
   }
 
   // backward finite difference approximation of rate of tasks from other agents
