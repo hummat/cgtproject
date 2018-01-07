@@ -105,9 +105,11 @@ def _curve(mean, ax, color, label=None, fill=False, area=False):
     else:
         ax.plot(x, y, color=color, label=label)
     if area:
-        #if color == TABLEAU20[0]:
-            #c=
-        plt.text(1200, y.mean() - 2, 'Area=' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
+        if color == TABLEAU20[0]:
+            c = 'white'
+        else:
+            c = 'black'
+        ax.text(1200, y.mean() - 2, 'Area: ' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20, color=c)
 
 
 def _box(trials, base_trials=None):
@@ -278,6 +280,6 @@ fig8_labels = [
 ]
 #line_plot('csv_data/N_baseline_w25n100.csv')
 #figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=fig4_labels)
-#figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv')
+#figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 #figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
 #figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
