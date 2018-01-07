@@ -162,7 +162,7 @@ def line_plot(filename, outliers=list(), avrg=False, save=False):
                 _curve(mean, ax, color=c, label=str(name), fill=False, area=False)
         ax.legend(fontsize=14, frameon=False)
     if save:
-        plt.savefig("figures/line_" + filename + ".png", bbox_inches='tight')
+        plt.savefig("figures/lines.png", bbox_inches='tight')
     else:
         plt.show()
 
@@ -329,19 +329,19 @@ fig7_labels = [
 ]
 fig8_csv = [
     'csv_data/N_baseline_w25n100.csv',
-    'csv_data/N_baseline_n324.csv',
-    'csv_data/N_baseline_n729.csv',
+    'csv_data/N_baseline_n324_scaled2.csv',
+    'csv_data/N_baseline_n729_scaled2.csv',
     'csv_data/N_nine_sup_w25.csv',
-    'csv_data/N_9sup_n324.csv',
-    'csv_data/N_9sup_n729.csv'
+    'csv_data/N_9sup_n324_scaled2.csv',
+    'csv_data/N_9sup_n729_scaled2.csv'
 ]
 fig8_labels = [
     '100',
     '324',
     '729'
 ]
-# line_plot('csv_data/N_9sup_n324.csv')
+# line_plot('csv_data/N_baseline_n729_scaled.csv', save=True)
 # figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
 # figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
-figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels, save=True)
+# figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels, save=True)
