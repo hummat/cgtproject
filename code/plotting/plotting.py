@@ -251,10 +251,37 @@ def figure7(baseline, filenames, labels=None, save=False):
         plt.show()
 
 
-def figure8(baseline, filenames, labels=None, save=False):
+def figure8(baselines, sizes, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
+
+    base_list = list()
+    for base in baselines:
+        b = _process_input(base)
+        base_list.append(b.groupby('trial'))
+    size_list = list()
+    for size in sizes:
+        s = _process_input(size)
+        size_list.append(s.groupby('trial'))
+    ax.spines['top'].set_visible(False)
+    ax.spines['bottom'].set_visible(False)
+    ax.spines['right'].set_visible(False)
+    ax.tick_params(axis='both', which='both', bottom='off', top='off',
+                   labelbottom='on', left='on', right='off', labelleft='on', direction='out')
+    plt.xticks(fontsize=14)
+    plt.yticks(np.arange(0, 2, .25), fontsize=14)
     ax.set_xlabel('Network Size', fontsize=16, labelpad=20)
-    box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, color=True)
+    ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
+    ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
+    ax.set_ylim([0, 2])
+    box_list = list()
+    for size, base in zip(size_list, base_list):
+        box_list.append(_box(size, base))
+    params = ax.boxplot(box_list, labels=labels, patch_artist=True, showmeans=True, showcaps=False, widths=.7)
+    for index, box in enumerate(params['boxes']):
+        box.set_facecolor(TABLEAU20[index])
+    for med in params['medians']:
+        med.set_color('black')
+
     if save:
         plt.savefig("figures/figure8_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
     else:
@@ -302,13 +329,19 @@ fig7_labels = [
 ]
 fig8_csv = [
     'csv_data/N_baseline_w25n100.csv',
+    'csv_data/N_baseline_w25n100.csv',
+    'csv_data/N_baseline_w25n100.csv',
+    'csv_data/N_nine_sup_w25.csv',
+    'csv_data/N_nine_sup_w25.csv',
     'csv_data/N_nine_sup_w25.csv'
 ]
 fig8_labels = [
-    '100'
+    '100',
+    '324',
+    '729'
 ]
 # line_plot('csv_data/N_baseline_w25n100.csv')
 # figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
 # figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
-# figure8(baseline=fig8_csv[0], filenames=[fig8_csv[1]], labels=fig8_labels)
+# figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels)
