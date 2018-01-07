@@ -24,10 +24,10 @@ TABLEAU20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
              (148, 103, 189), (197, 176, 213), (140, 86, 75), (196, 156, 148),
              (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
              (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
+
 OUTLIERS = {
     'csv_data/N_baseline_w25n100.csv': [11, 13, 14, 23, 26],
     'csv_data/N_one_sup_w25.csv': [6, 15],
-    # 'csv_data/N_four_sup_w25.csv': [5, 11, 14, 25],
     'csv_data/N_nine_sup_w25.csv': [15, 20, 28],
     'csv_data/N_one_sup_w5.csv': [1, 23],
     'csv_data/N_one_sup_w10.csv': [9, 11, 19, 27, 28],
@@ -39,7 +39,8 @@ OUTLIERS = {
     'csv_data/N_one_sup_w200.csv': [21],
     'csv_data/N_one_sup_w300.csv': [25],
     'csv_data/N_one_sup_w400.csv': [10, 30],
-    'csv_data/N_one_sup_w500.csv': [10, 26]
+    'csv_data/N_one_sup_w500.csv': [10, 26],
+    'csv_data/N_one_sup_w25n729.csv': []
 }
 
 
@@ -300,13 +301,14 @@ fig7_labels = [
     'Baseline / No Sup'
 ]
 fig8_csv = [
-    'csv_data/N_one_sup_w25.csv'
+    'csv_data/N_baseline_w25n100.csv',
+    'csv_data/N_nine_sup_w25.csv'
 ]
 fig8_labels = [
     '100'
 ]
-#line_plot('csv_data/N_one_sup_w500.csv')
-#figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
+# line_plot('csv_data/N_baseline_w25n100.csv')
+# figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
 # figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
-#figure8(baseline='csv_data/N_baseline_w25n100.csv', filenames=fig8_csv, labels=fig8_labels)
+# figure8(baseline=fig8_csv[0], filenames=[fig8_csv[1]], labels=fig8_labels)
