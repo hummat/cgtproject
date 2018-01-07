@@ -25,7 +25,10 @@ TABLEAU20 = [(31, 119, 180), (174, 199, 232), (255, 127, 14), (255, 187, 120),
              (227, 119, 194), (247, 182, 210), (127, 127, 127), (199, 199, 199),
              (188, 189, 34), (219, 219, 141), (23, 190, 207), (158, 218, 229)]
 OUTLIERS = {
-    'csv_data/N_baseline_w25n100.csv': [11]
+    'csv_data/N_baseline_w25n100.csv': [11, 13, 14, 23, 26],
+    'csv_data/N_one_sup_w25.csv': [6, 15],
+    #'csv_data/N_four_sup_w25.csv': [5, 11, 14, 25],
+    'csv_data/N_nine_sup_w25.csv': [15, 20, 28]
 }
 
 
@@ -36,6 +39,8 @@ def _init():
     np.random.seed()
     for index, color in enumerate(TABLEAU20):
         TABLEAU20[index] = (color[0] / 255., color[1] / 255., color[2] / 255.)
+    for filename, outlier in OUTLIERS.items():
+        OUTLIERS[filename] = np.sort(outlier)[::-1]
 
 
 def _generate_data(samples=10000, scale=10, a=2, b=10):
@@ -56,11 +61,11 @@ def _generate_data(samples=10000, scale=10, a=2, b=10):
 
 
 def _process_input(filename):
-    df = pd.read_csv(filename, delimiter=',', dtype=int, header=0)
+    df = pd.read_csv(filename, delimiter=',', dtype=int)
     if filename in OUTLIERS:
         for outlier in OUTLIERS[filename]:
             df = df[df['trial'] != outlier]
-            df.loc[df['trial'] > outlier] -= 1
+            df['trial'].loc[df['trial'] > outlier] -= 1
     df['x'] = df['step'] + df['complete']
     df['y'] = df['complete'] - df['original']
     return df
@@ -100,7 +105,9 @@ def _curve(mean, ax, color, label=None, fill=False, area=False):
     else:
         ax.plot(x, y, color=color, label=label)
     if area:
-        plt.text(1000, y.max() - y.mean() / 3, 'Area=' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
+        #if color == TABLEAU20[0]:
+            #c=
+        plt.text(1200, y.mean() - 2, 'Area=' + str(np.round(_auc(mean) / 100000, 2)) + r'$\cdot 10^5$', fontsize=20)
 
 
 def _box(trials, base_trials=None):
@@ -161,21 +168,20 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
     ax.tick_params(axis='both', which='both', bottom='off', top='off',
                    labelbottom='on', left='on', right='off', labelleft='on', direction='out')
     plt.xticks(fontsize=14)
-    plt.yticks(np.arange(0, 3, .5), fontsize=14)
+    plt.yticks(np.arange(0, 2, .25), fontsize=14)
     ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
-    ax.set_xlabel('Window Size', fontsize=16, labelpad=20)
     ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
-    ax.set_ylim([0, 3])
+    ax.set_ylim([0, 2])
     if compare is None:
         ax.boxplot([_box(trials)], labels=labels, notch=notch)
     else:
         box_list = list()
         for window in windows:
             box_list.append(_box(window, trials))
-        params = ax.boxplot(box_list, labels=labels, notch=notch, patch_artist=color)
+        params = ax.boxplot(box_list, labels=labels, notch=notch, patch_artist=color, showmeans=True, showcaps=False)
         if color:
             for index, box in enumerate(params['boxes']):
-                box.set_color(TABLEAU20[index])
+                box.set_facecolor(TABLEAU20[index])
         median_y = list()
         median_x = list()
         for med in params['medians']:
@@ -193,6 +199,7 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
 
 def figure4(baseline, windows, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
+    ax.set_xlabel('Window Size', fontsize=16, labelpad=20)
     if labels is None:
         box_plot(baseline, windows, ax, median=True)
     else:
@@ -203,7 +210,7 @@ def figure4(baseline, windows, labels=None, save=False):
         plt.show()
 
 
-def figure5(baseline, supervised, outliers=list(), save=False):
+def figure5(baseline, supervised, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
     base = _process_input(baseline)
     base_mean = base.groupby('x').mean()
@@ -224,6 +231,7 @@ def figure5(baseline, supervised, outliers=list(), save=False):
 
 def figure7(baseline, filenames, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
+    ax.set_xlabel('Supervisory Configuration', fontsize=16, labelpad=20)
     box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, color=True, notch=True)
     if save:
         plt.savefig("figures/figure7_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
@@ -233,6 +241,7 @@ def figure7(baseline, filenames, labels=None, save=False):
 
 def figure8(baseline, filenames, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
+    ax.set_xlabel('Network Size', fontsize=16, labelpad=20)
     box_plot(data=baseline, compare=filenames, ax=ax, labels=labels)
     if save:
         plt.savefig("figures/figure8_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
@@ -251,8 +260,8 @@ fig4_labels = [
 ]
 fig7_csv = [
     'csv_data/N_one_sup_w25.csv',
-    'csv_data/N_one_sup_w25n100s4.csv',
-    'csv_data/N_one_sup_w25n100s9.csv',
+    'csv_data/N_four_sup_w25.csv',
+    'csv_data/N_nine_sup_w25.csv',
     'csv_data/N_baseline_w25n100.csv'
 ]
 fig7_labels = [
@@ -269,6 +278,6 @@ fig8_labels = [
 ]
 #line_plot('csv_data/N_baseline_w25n100.csv')
 #figure4(baseline='csv_data/baseline_w10.csv', windows=fig4_windows, labels=fig4_labels)
-#figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25n100s1.csv')
-#figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels)
+#figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv')
+#figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
 #figure8(baseline='csv_data/N_baseline_w25n729.csv', filenames=fig8_csv, labels=fig8_labels)
