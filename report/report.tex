@@ -7,6 +7,7 @@
 \usepackage{amsmath}
 \usepackage{listings}
 \usepackage{capt-of}
+\usepackage{float}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -52,7 +53,7 @@ In the standard Reinforcement Learning (RL) setting \citep{sutton1998reinforceme
 Multi-Agent Reinforcement Learning (MARL) is an extension to the standard RL problem setting, where multiple, often hundreds or thousands of autonomous agents try to pursue their individual goals simultaneously in a common environment. We speak of cooperative MARL, if multiple or all agents pursue the same goal, which means they try to maximize a common reward function \citep{tuyls2005evolutionary}. If they succeed, we say that they follow a (near-optimal) joint policy where policy means a mapping from states to actions. To achieve this however has proven to be difficult for large-scale multi-agent systems as it is computationally expensive and requires a large number of update steps until it converges.
 
 An important insight on the path to solving this problem is the observation, that an exploitable structure in the problem setting--a distributed load balancing problem (Figure \ref{fig:loadbalancing}), where the agents try to share the work among each other as to minimize processing time--in the form of contextually similar groups of agents emerges during learning. Real world examples of this effect can be observed in disaster planning and sensing networks. Agents working on similar tasks under comparable environmental dynamics might benefit from sharing information to accelerate their individual learning progress which is the paradigm proposed in the paper under review. Additionally, strategies to identify promising candidates for information sharing and group formation are proposed, which will be introduced in the next section along with the test setup. In previous work, agents have either been trained individually on their local environment and neighbors, not being able to benefit from the experience of their peers, or as a hive, optimizing a single joint policy, which becomes quickly intractable even for a moderately large number of agents. But identifying contextually similar groups which are likely to greatly benefit from information sharing comes with its own difficulties. What information should be transferred? What does \textit{similar} mean? How well does this approach scale? Section \ref{sec:methods} will explore some of these questions in detail.
-\begin{figure}[ht]
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=.7\linewidth]{figures/loadbalancing}
   \caption{Small load balancing network \citep{garant2015accelerating}}
@@ -67,7 +68,7 @@ Several questions arise when designing a solution for this problem. I.e. How to 
 The authors propose a model of supervisor and subordinate agents. The subordinates can be seen as the domain specific workers of the system that aim to optimize a joint, domain-specific problem (e.g. load balancing distribution to minimise total service time). Supervisors keep track of subordinate groups and aim to accelerate the learning process using high level feature traits, collected from the subordinates.
 
 The process starts by creating \textit{subordinate groups} (Figure \ref{fig:subordinate}) consisting of supervisors and subordinates. These groups remain fixed over the entire learning process. After groups are formed, supervisors periodically search for \textit{contextual compatible} subordinates in their subordinate group to compose experience \textit{sharing groups}. In these groups, subordinates are able to share learned experiences with any other member from the sharing group. Experience sharing between subordinates from different supervisors is not allowed. The contextual compatibility depends on factors like metric-defined interactions within a certain group of agents, also referred to as interaction sparsity in literature (e.g. $D^C$ distance measure in implementation) or aggregate effects over group interactions (e.g. amount of sent messages between agents over a time period).
-\begin{figure}[ht]
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/subordinates}
   \caption{Supervisor hierarchy \citep{garant2015accelerating}}
@@ -90,7 +91,7 @@ In order to keep the shared experiences concise, time-windows of $t$ timesteps a
 \vspace*{\baselineskip}\endgroup
 
 In a real word setting, experiences could be compressed by using linear regression equations, fitted to variable sets in the window. This is especially effective when agents infrequently change state. These \textit{compressed experiences} can be shared between subordinates using a supervisory agent as proxy. This allows the supervisor to derive context features from reported experiences and share it with subordinates that desire so. Though useful to save network bandwidth in a practical sense, from a theoretical point of view, compression is not desirable since it only adds complexity to the system. We chose to send raw, uncompressed experiences in order to update subordinate Q-values. The diagram below gives an overview of the model.
-\begin{figure}[ht]
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/diagram}
   \caption{Supervisory structure \citep{garant2015accelerating}}
@@ -109,16 +110,17 @@ Workers in the network improved their performance using a basic Q-learning algor
 \subsubsection{Distance Function}
 The distance functions for each type of context feature followed a similar pattern that allowed for the proper interaction with the Boltzmann distribution used in the sharing selection algorithm.
 \[D^C(C_1, C_2) = \lceil 10e^{-| C_1 - C_2 |} \rceil / 10\]
+
 The quantized inverse exponential absolute difference produces discrete values that are near 1 when the distance is near 0 and and near zero when the distance grows large.  This allows the Boltzmann distribution to correctly weight small context feature distances with higher probabilities.
 
 \subsubsection{Context Feature Construction}
 Though stated in the paper that context feature construction is a transformation of an agent’s experiences for a given window into a vector or context features, it is only possible to create the context features only from the experiences of an agent by encapsulating all of the information relevant to the context features in the state of the agent. This sounds trivial, but in this case requires recording the local state (i.e. load, environment task allocation rate, and agent task allocation rate) of each of its neighbors into its own state.  Instead of encapsulating all of this data in this extended state, in our implementation the supervisor queries the agent and its neighbors for the information it requires and creates the context features from those responses.  These two methods are equivalent because the exact same information is gathered from querying as extracting from state.  This allowed us to have a simpler representation of state.
 
 \section{Results and Discussion}
-To present our results, we use the same methodology as the original paper to facilitate comparison. The primary measure of performance is the \textit{Area Under the Learning Curve} (AUC). It is computed by taking the difference between the originally assigned service time of each task and the actual time needed by the network to solve it. The mean of this difference in service time per time step is then smoothed using an exponential moving average with a smoothing factor $\alpha=\frac{2}{span+1}$, where \textit{span} is set to the time period for which the simulation was run (i.e. $10,000$). The minimum mean value is then subtracted from each remaining value to "lower" the curve onto the x-axis. Taking the area under this curve results into the AUC measure. This measure reflects the performance of a parameterization of the algorithm, as a we want the difference in assigned and consumed service time to be as small as possible over as long a time span as possible, which is precisely what the AUC provides.
+To present our results, we use the same methodology as the original paper to facilitate comparison. The primary measure of performance is the \textit{Area Under the Learning Curve} (AUC). It is computed by taking the difference between the originally assigned service time of each task and the actual time needed by the network to solve it. The mean of this difference in service time per time step is then smoothed using an exponential moving average with a smoothing factor $\alpha=2/(span+1)$, where \textit{span} is set to the time period for which the simulation was run (i.e. $10,000$). The minimum mean value is then subtracted from each remaining value to "lower" the curve onto the x-axis. Taking the area under this curve results into the AUC measure. This measure reflects the performance of a parameterization of the algorithm, as a we want the difference in assigned and consumed service time to be as small as possible over as long a time span as possible, which is precisely what the AUC provides.
 
 Figure \ref{fig:areas} gives an example of the baseline architecture compared to the one supervisory configuration. To facilitate reproduction of our results, we provide, for each figure, the exact parameterization used to generate it. We will use, where applicable, $S$ for the number of supervisors, $K$ for the size of the learning window, $N$ for the size of the network. For all simulations, a \textit{maximum branching factor} of $10$ and a \textit{maximum service time} of \todo{Add value} were used and the results are the average over 30 trials. When we speak of the \textit{baseline configuration} the following parameters were used: $S=0,K=25,N=100$.
-\begin{figure}[ht]
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure5_light}
   \caption{Task Allocation Performance Evaluation\\Parameters: $S=0/1,K=25,N=100$}
@@ -129,7 +131,7 @@ Figure \ref{fig:areas} gives an example of the baseline architecture compared to
 Clearly, the one supervisory configuration performs much better than the baseline configuration. In the beginning, when the network has not yet learned to distribute the load, the average service time rises quickly. Around 1000 time steps however, the supervisor has identified sharing groups and optimizes the learning process of the subordinates, resulting in fast convergence to a better task distribution. The agents in the baseline configuration also learn to distribute tasks, but do so at a much slower pace and with less success. Compared to the figure 5 of the original paper, the results qualitatively comparable, but not identical. The rate and difficulty of the tasks generated by the environment seem to be higher, as the maxima for both the baseline and one supervisor learning curve are stronger. \todo{Add other reasons for this difference}.
 
 To see the effect of changing the parameters of the model, we will now take a look at a performance evaluation for different learning window sizes $K$. The AUC is not compared directly, but in comparison to the baseline architecture (for which changes in the learning window have no effect). Figure \ref{fig:windows} below depicts the results.
-\begin{figure}[ht]
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure4_extended}
   \caption{Effect of varying winow size K}
@@ -139,8 +141,8 @@ To see the effect of changing the parameters of the model, we will now take a lo
 
 Again, our results compare well to those seen in the paper. A rise in $K$ is generally correlated with a rise in relative AUC. There are occasional outliers, just like in the paper, which could be due to small sample size. \todo{Anything else?} The biggest difference is, that even for $K=500$ the performance of the one supervisory configuration is still better than baseline. As seen before in figure \ref{fig:areas} this could be due to easier environment settings. \todo{Or what?}
 
-In figure \ref{fig:sups} we explore the effect on the learning behavior when using a greater number of supervisors.
-\begin{figure}[ht]
+In figure \ref{fig:sups} we explore the effect on the learning behavior when using a greater number of supervisors. The one supervisor scenario is a best case assumption, where sharing groups can be formed between the best suited candidates from the whole population of agents. With a rising number of supervisors the probability to identify contextually similar agents decreases, resulting in a loss of performance. This effect can be observed in both our results and those from \citeauthor{garant2015accelerating}.
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure7}
   \caption{Relative Performance by Supervisory Configuration}
@@ -148,8 +150,8 @@ In figure \ref{fig:sups} we explore the effect on the learning behavior when usi
  \end{center}
 \end{figure}
 
-Balblabla.
-\begin{figure}[ht]
+While the variance of the results increases with a growing number of supervisors, consistent with our reference, it does so more rapidly in our work. Additionally the variance of the baseline configuration is much higher, possibly due to a different approach in computing the \textit{relative} AUC for which there is unfortunately no information provided in the original work. Our approach takes the average of all 30 trials of the baseline configuration to reference against. To highlight the trend towards the baseline performance when adding supervisors, we added the mean value for all trials represented as small green triangle.
+\begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure8}
   \caption{Relative Performance as network size is varied}
@@ -158,6 +160,7 @@ Balblabla.
 \end{figure}
 
 \section{Conclusion}
+\todo{As this section was moved, the introduction should probably be changed}\\
 That being said, it shows that the choice of context features heavily influences the representation of the state of an agent.  For example here, an agent records information in its state that one would intuitively not think of as that agent’s state, like each of its neighbor’s loads and rates.  In multi-agent reinforcement learning, agents generally want to make decisions based solely on information gained from reward signals, in this case from other neighbors.  It seems odd then to need to record the internal state of those neighbors for the context features to be created solely rom experiences.  If you choose a more intuitive representation of state, i.e. information completely local to the agent, then creating the context features outlined in the paper is impossible. That is why the querying implementation was used here, because information required to create the context features could not be recovered from experiences alone without being extremely “generous” in what counts as the state of an agent..
 \\\todo{More complaining after..?}
 
@@ -179,19 +182,17 @@ Since this intuitive representation is untenable, we have to choose between usin
 \\\todo{Summary and outlook}
 \\\todo{Make sure all questions given below are answered}
 \begin{enumerate}
- \item Does the introduction explain clearly the content of the paper
- \item whether there is sufficient background information to understand the relevance of the work
- \item whether the methods are clearly explained (can the results be reproduced?)
- \item whether the results answer the questions asked in the paper.
- \item whether all questions are answered
- \item whether the conclusion is sufficient
- \item and whether the overall style is ok and
- \item whether you believe things are missing in the discussion.
- \item etc.
- \item 3 positive points concerning the work, clearly specifying why you think they are well-
-       done or interesting
- \item 3 negative points, which may include missing/unclear explanations or suggestions for
-       improvement
+ \item Does the introduction explain clearly the content of the paper - Maybe not?
+ \item whether there is sufficient background information to understand the relevance of the work - Yes!
+ \item whether the methods are clearly explained (can the results be reproduced?) - Yes!
+ \item whether the results answer the questions asked in the paper. \todo{Identify questions}
+ \item whether all questions are answered - Which ones??
+ \item whether the conclusion is sufficient - We'll see.
+ \item and whether the overall style is ok and - Oh yes!
+ \item whether you believe things are missing in the discussion. - Nope.
+ \item etc. - Yes.
+ \item 3 positive points concerning the work, clearly specifying why you think they are well-done or interesting
+ \item 3 negative points, which may include missing/unclear explanations or suggestions for improvement
  \item at least 3 clear and relevant questions on the content or the methods used which can be asked (next to other questions).
 \end{enumerate}
 
