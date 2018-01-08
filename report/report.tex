@@ -11,21 +11,22 @@
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
 \definecolor{mauve}{rgb}{0.58,0,0.82}
 
-\lstset{frame=tb,
-  language=Java,
-  aboveskip=3mm,
-  belowskip=3mm,
-  showstringspaces=false,
-  columns=flexible,
-  basicstyle={\small\ttfamily},
-  numbers=none,
-  numberstyle=\tiny\color{gray},
-  keywordstyle=\color{blue},
-  commentstyle=\color{dkgreen},
-  stringstyle=\color{mauve},
-  breaklines=true,
-  breakatwhitespace=true,
-  tabsize=3
+\lstset{frame=none,
+ language=Scala,
+ aboveskip=3mm,
+ belowskip=3mm,
+ showstringspaces=false,
+ columns=flexible,
+ xleftmargin=.25in,
+ basicstyle={\footnotesize \ttfamily},
+ numbers=left,
+ numberstyle=\tiny \color{black},
+ keywordstyle=\color{blue},
+ commentstyle=\color{dkgreen},
+ stringstyle=\color{mauve},
+ breaklines=true,
+ breakatwhitespace=true,
+ tabsize=3
 }
 
 \newcommand\todo[1]{\textcolor{orange}{Todo: #1}}
@@ -110,11 +111,12 @@ That being said, it shows that the choice of context features heavily influences
 
 The problem stems from the fact that supervisor has no knowledge of the problem domain a priori, and therefore must extract all information from experiences. To see why it is impossible to extract context features from experiences alone, consider the following intuitive representation of an experience for the load-balancing problem, over a time window of size K:
 \begin{lstlisting}
-  State(load, environmentRate, agentRate)
-  Process or Forward(i, agentID)
-  State’(load, environmentRate, agentRate)
-  InverseService(r)
+State(load, environmentRate, agentRate)
+Process or Forward(i, agentID)
+State’(load, environmentRate, agentRate)
+InverseService(r)
 \end{lstlisting}
+\todo{Is this (above) what you wanted Steve?}\\
 The supervisor can recover the neighbors of the agent by looking at where the agent has forwarded to this window.  That might not be all, or any, of its neighbors so we only recovered a subset of those neighbors.
 
 If we allow the supervisor to look at other experiences in its memory of other agents (which the paper does not explicitly allow, but seems reasonable), then we can recover the relevant information from the experiences of the agents that are neighbors of the given agent, but only if those neighbors are in the supervisor’s memory.
