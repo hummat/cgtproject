@@ -112,19 +112,21 @@ The quantized inverse exponential absolute difference produces discrete values t
 Though stated in the paper that context feature construction is a transformation of an agent’s experiences for a given window into a vector or context features, it is only possible to create the context features only from the experiences of an agent by encapsulating all of the information relevant to the context features in the state of the agent. This sounds trivial, but in this case requires recording the local state (i.e. load, environment task allocation rate, and agent task allocation rate) of each of its neighbors into its own state.  Instead of encapsulating all of this data in this extended state, in our implementation the supervisor queries the agent and its neighbors for the information it requires and creates the context features from those responses.  These two methods are equivalent because the exact same information is gathered from querying as extracting from state.  This allowed us to have a simpler representation of state.
 
 \section{Results and Discussion}
-To present our results, we use the same methodology as the original paper to facilitate comparison.
+To present our results, we use the same methodology as the original paper to facilitate comparison. The primary measure of performance is the \textit{Area Under the Learning Curve} (AUC). It is computed by taking the difference between the originally assigned service time of each task and the actual time needed by the network to solve it. The mean of this difference in service time per time step is then smoothed using an exponential moving average with a smoothing factor $\alpha=\frac{2}{span+1}$, where \textit{span} is set to the time period for which the simulation was run (i.e. $10,000$). The minimum mean value is then subtracted from each remaining value to "lower" the curve onto the x-axis. Taking the area under this curve results into the AUC measure. This measure reflects the performance of a parameterization of the algorithm, as a we want the difference in assigned and consumed service time to be as small as possible over as long a time span as possible, which is precisely what the AUC provides.
+
+Figure \ref{fig:areas} gives an example of the baseline architecture compared to the one supervisory configuration. To facilitate reproduction of our results, we provide, for each figure, the exact parameterization used to generate it. We will use, where applicable, $S$ for the number of supervisors, $K$ for the size of the learning window, $N$ for the size of the network. For all simulations, a \textit{maximum branching factor} of $10$ and a \textit{maximum service time} of \todo{Add value} were used. When we speak of the \textit{baseline configuration} the following parameter tuple was used: $(S=0,K=25,N=100)$.
+\begin{figure}[ht]
+ \begin{center}
+  \includegraphics[width=\linewidth]{figures/figure5_light}
+  \caption{Task Allocation Performance Evaluation\\Parameters: $K=25,N=100$}
+  \label{fig:areas}
+ \end{center}
+\end{figure}
 \begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure4_extended}
   \caption{Effect of varying winow size K}
   \label{fig:windows}
- \end{center}
-\end{figure}
-\begin{figure}[ht]
- \begin{center}
-  \includegraphics[width=\linewidth]{figures/figure5_light}
-  \caption{Task Allocation Performance Evaluation}
-  \label{fig:areas}
  \end{center}
 \end{figure}
 \begin{figure}[ht]
