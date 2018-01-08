@@ -6,6 +6,7 @@
 \usepackage{microtype}
 \usepackage{amsmath}
 \usepackage{listings}
+\usepackage{capt-of}
 
 \definecolor{dkgreen}{rgb}{0,0.6,0}
 \definecolor{gray}{rgb}{0.5,0.5,0.5}
@@ -73,7 +74,8 @@ The process starts by creating \textit{subordinate groups} (Figure \ref{fig:subo
  \end{center}
 \end{figure}
 
-In order to keep the shared experiences concise, time-windows of $t$ timesteps are defined to characterize policy, reward and transition changes. Considering that decisions are framed as a Markov Decision Process (MDPs), experiences for one time window $[t_{0}, t_{e}]$ can be represented as a vector of tuples with $s_i, a_i, r_i$ and $s'_i$ corresponding to current state, action, reward and next state of the subordinate as depicted below. To be even more concise, another possibility would be experience merging within a given time window. This is disregarded due to increased complexity and information loss risks when states are not visited uniformly.
+In order to keep the shared experiences concise, time-windows of $t$ timesteps are defined to characterize policy, reward and transition changes. Considering that decisions are framed as a Markov Decision Process (MDPs), experiences for one time window $[t_{0}, t_{e}]$ can be represented as a vector of tuples with $s_i, a_i, r_i$ and $s'_i$ corresponding to current state, action, reward and next state of the subordinate as depicted in figure \ref{fig:tuples}. To be even more concise, another possibility would be experience merging within a given time window. This is disregarded due to increased complexity and information loss risks when states are not visited uniformly.
+\vspace{\baselineskip}
 \begin{align*}
  \biggl<
   & (s_{i_{t_0}},a_{i_{t_0}},r_{i_{t_0}},s'_{i_{t_0}}), \\
@@ -82,6 +84,9 @@ In order to keep the shared experiences concise, time-windows of $t$ timesteps a
   & (s_{i_{t_e}},a_{i_{t_e}},r_{i_{t_e}},s'_{i_{t_0}})
  \biggr>
 \end{align*}
+\begingroup\vspace*{-\baselineskip}
+\captionof{figure}{Vector of experience tuples} \label{fig:tuples}
+\vspace*{\baselineskip}\endgroup
 In a real word setting, experiences could be compressed by using linear regression equations, fitted to a variables set in the window. This is especially effective when agents infrequently change state. These \textit{compressed experiences} can be shared between subordinates using a supervisory agent as proxy. This allows the supervisor to derive context features from reported experiences and share it with subordinates that desire so. Though useful to save network bandwidth in a practical sense, from a theoretical point of view, compression is not desirable since it only adds complexity to the system. We chose to send raw, uncompressed experiences in order to update subordinate Q-values. The diagram below gives an overview of the model.
 \begin{figure}[ht]
  \begin{center}
