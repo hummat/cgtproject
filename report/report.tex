@@ -163,6 +163,7 @@ The last parameter influence we want to explore is the network size. Figure \ref
 
 \section{Conclusion}
 \todo{As this section was moved, the introduction should probably be changed}\\
+\subsubsection{Complains}
 That being said, it shows that the choice of context features heavily influences the representation of the state of an agent.  For example here, an agent records information in its state that one would intuitively not think of as that agent’s state, like each of its neighbor’s loads and rates.  In multi-agent reinforcement learning, agents generally want to make decisions based solely on information gained from reward signals, in this case from other neighbors.  It seems odd then to need to record the internal state of those neighbors for the context features to be created solely rom experiences.  If you choose a more intuitive representation of state, i.e. information completely local to the agent, then creating the context features outlined in the paper is impossible. That is why the querying implementation was used here, because information required to create the context features could not be recovered from experiences alone without being extremely “generous” in what counts as the state of an agent..
 \\\todo{More complaining after..?}
 
@@ -181,7 +182,12 @@ If we allow the supervisor to look at other experiences in its memory of other a
 Therefore, to get all of the information necessary to accurately calculate the context features for a given agent, that agent would have had to forward to all of its neighbors at least once in the window and those neighbors would also have had to be part of the same subordinate group (and then there’s still problems and the edges of the subordinate group).
 
 Since this intuitive representation is untenable, we have to choose between using a bloated, unintuitive representation of state, or just querying the agents for the information we require.  We chose the latter.
-\\\todo{Summary and outlook}
+
+\subsubsection{Summary}
+This paper reviewed a method to accelerate learning in MAS, proposed by Garant et al. (2015). By means of a personal implementation, we examined theoretical and empirical analysis of the authors. This allowed us to reason and comment on design decisions, metrics, optimizations and ambiguities that followed from the work. After providing an introduction and methodology background, we highlighted implementation details and concluded the paper with our obtained results and corresponding discussion. Overall, we observed comparable results with slight variance but noted that these results were very sensitive to MAS and architecture settings.
+
+\subsubsection{Outlook}
+\todo{outlook}
 \\\todo{Make sure all questions given below are answered}
 \begin{enumerate}
  \item Does the introduction explain clearly the content of the paper - Maybe not?
