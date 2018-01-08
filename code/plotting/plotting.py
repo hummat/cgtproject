@@ -106,10 +106,10 @@ def _curve(mean, ax, color, label=None, fill=False, area=False):
     ax.spines['left'].set_visible(False)
     ax.tick_params(axis='both', which='both', bottom='off', top='off',
                    labelbottom='on', left='off', right='off', labelleft='on', direction='in')
-    plt.xticks(fontsize=14)
-    plt.yticks(fontsize=14)
-    ax.set_ylabel('Service Time', fontsize=16, labelpad=20)
-    ax.set_xlabel('Time', fontsize=16, labelpad=20)
+    plt.xticks(fontsize=18)
+    plt.yticks(fontsize=18)
+    ax.set_ylabel('Service Time', fontsize=20, labelpad=20)
+    ax.set_xlabel('Time', fontsize=20, labelpad=20)
     ax.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
     if fill:
         ax.plot(x, y, color='black', linewidth=.5, label='_nolegend_')
@@ -182,10 +182,9 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
     ax.spines['right'].set_visible(False)
     ax.tick_params(axis='both', which='both', bottom='off', top='off',
                    labelbottom='on', left='on', right='off', labelleft='on', direction='out')
-    plt.xticks(fontsize=14)
-    plt.yticks(np.arange(0, 2, .25), fontsize=14)
-    ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
-    ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
+    plt.xticks(fontsize=18)
+    plt.yticks(np.arange(0, 2, .25), fontsize=18)
+    ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=20, labelpad=20)
     ax.set_ylim([0, 2])
     if compare is None:
         ax.boxplot([_box(trials)], labels=labels, notch=notch)
@@ -205,6 +204,8 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
             med.set_color('black')
         if median:
             ax.plot(median_x, median_y, color=TABLEAU20[6], linestyle='dashed', marker='.', markersize=10)
+    ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
+    ax.axhline(y=1, linewidth=1.5, linestyle='dashed', color='black')
     if ax is None:
         if save:
             plt.savefig("figures/box_" + data + ".png", bbox_inches='tight')
@@ -214,7 +215,7 @@ def box_plot(data, compare=None, ax=None, labels=None, color=False, median=False
 
 def figure4(baseline, windows, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
-    ax.set_xlabel('Window Size', fontsize=16, labelpad=20)
+    ax.set_xlabel('Window Size', fontsize=20, labelpad=20)
     box_plot(baseline, windows, ax, labels=labels, median=True)
     if save:
         plt.savefig("figures/figure4_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
@@ -234,7 +235,7 @@ def figure5(baseline, supervised, save=False):
     else:
         _curve(sup_mean, ax, color=TABLEAU20[3], label='1 Supervisor', fill=True, area=True)
         _curve(base_mean, ax, color=TABLEAU20[0], label='Baseline', fill=True, area=True)
-    ax.legend(fontsize=14, frameon=False)
+    ax.legend(fontsize=18, frameon=False)
     if save:
         plt.savefig("figures/figure5_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
     else:
@@ -243,7 +244,7 @@ def figure5(baseline, supervised, save=False):
 
 def figure7(baseline, filenames, labels=None, save=False):
     fig, ax = plt.subplots(figsize=(12, 9))
-    ax.set_xlabel('Supervisory Configuration', fontsize=16, labelpad=20)
+    ax.set_xlabel('Supervisory Configuration', fontsize=20, labelpad=20)
     box_plot(data=baseline, compare=filenames, ax=ax, labels=labels, color=True, notch=True)
     if save:
         plt.savefig("figures/figure7_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
@@ -267,10 +268,10 @@ def figure8(baselines, sizes, labels=None, save=False):
     ax.spines['right'].set_visible(False)
     ax.tick_params(axis='both', which='both', bottom='off', top='off',
                    labelbottom='on', left='on', right='off', labelleft='on', direction='out')
-    plt.xticks(fontsize=14)
-    plt.yticks(np.arange(.2, 1.6, .1), fontsize=14)
-    ax.set_xlabel('Network Size', fontsize=16, labelpad=20)
-    ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=16, labelpad=20)
+    plt.xticks(fontsize=18)
+    plt.yticks(np.arange(.2, 1.6, .1), fontsize=18)
+    ax.set_xlabel('Network Size', fontsize=20, labelpad=20)
+    ax.set_ylabel('Relative Area Under\nLearning Curve', fontsize=20, labelpad=20)
     ax.yaxis.grid(True, linestyle='dashed', linewidth=.5, color='black', alpha=.3)
     ax.set_ylim([.2, 1.6])
     box_list = list()
@@ -329,11 +330,11 @@ fig7_labels = [
 ]
 fig8_csv = [
     'csv_data/N_baseline_w25n100.csv',
-    'csv_data/N_baseline_n324_scaled2.csv',
-    'csv_data/N_baseline_n729_scaled2.csv',
+    'csv_data/N_baseline_n324.csv',
+    'csv_data/N_baseline_n729.csv',
     'csv_data/N_nine_sup_w25.csv',
-    'csv_data/N_9sup_n324_scaled2.csv',
-    'csv_data/N_9sup_n729_scaled2.csv'
+    'csv_data/N_9sup_n324.csv',
+    'csv_data/N_9sup_n729.csv'
 ]
 fig8_labels = [
     '100',
@@ -342,6 +343,6 @@ fig8_labels = [
 ]
 # line_plot('csv_data/N_baseline_n729_scaled.csv', save=True)
 # figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
-# figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
+figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
 # figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels, save=True)
