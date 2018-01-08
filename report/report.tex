@@ -111,27 +111,7 @@ The quantized inverse exponential absolute difference produces discrete values t
 \subsubsection{Context Feature Construction}
 Though stated in the paper that context feature construction is a transformation of an agent’s experiences for a given window into a vector or context features, it is only possible to create the context features only from the experiences of an agent by encapsulating all of the information relevant to the context features in the state of the agent. This sounds trivial, but in this case requires recording the local state (i.e. load, environment task allocation rate, and agent task allocation rate) of each of its neighbors into its own state.  Instead of encapsulating all of this data in this extended state, in our implementation the supervisor queries the agent and its neighbors for the information it requires and creates the context features from those responses.  These two methods are equivalent because the exact same information is gathered from querying as extracting from state.  This allowed us to have a simpler representation of state.
 
-\subsubsection{COMPLAINING}
-That being said, it shows that the choice of context features heavily influences the representation of the state of an agent.  For example here, an agent records information in its state that one would intuitively not think of as that agent’s state, like each of its neighbor’s loads and rates.  In multi-agent reinforcement learning, agents generally want to make decisions based solely on information gained from reward signals, in this case from other neighbors.  It seems odd then to need to record the internal state of those neighbors for the context features to be created solely rom experiences.  If you choose a more intuitive representation of state, i.e. information completely local to the agent, then creating the context features outlined in the paper is impossible. That is why the querying implementation was used here, because information required to create the context features could not be recovered from experiences alone without being extremely “generous” in what counts as the state of an agent..
-\\\todo{More complaining after..?}
-
-The problem stems from the fact that supervisor has no knowledge of the problem domain a priori, and therefore must extract all information from experiences. To see why it is impossible to extract context features from experiences alone, consider the following intuitive representation of an experience for the load-balancing problem, over a time window of size K:
-\begin{lstlisting}
-State(load, environmentRate, agentRate)
-Process or Forward(i, agentID)
-State’(load, environmentRate, agentRate)
-InverseService(r)
-\end{lstlisting}
-\todo{Is this (above) what you wanted Steve?}\\
-The supervisor can recover the neighbors of the agent by looking at where the agent has forwarded to this window.  That might not be all, or any, of its neighbors so we only recovered a subset of those neighbors.
-
-If we allow the supervisor to look at other experiences in its memory of other agents (which the paper does not explicitly allow, but seems reasonable), then we can recover the relevant information from the experiences of the agents that are neighbors of the given agent, but only if those neighbors are in the supervisor’s memory.
-
-Therefore, to get all of the information necessary to accurately calculate the context features for a given agent, that agent would have had to forward to all of its neighbors at least once in the window and those neighbors would also have had to be part of the same subordinate group (and then there’s still problems and the edges of the subordinate group).
-
-Since this intuitive representation is untenable, we have to choose between using a bloated, unintuitive representation of state, or just querying the agents for the information we require.  We chose the latter.
-
-\section{Results}
+\section{Results and Discussion}
 To present our results, we use the same methodology as the original paper to facilitate comparison.
 \begin{figure}[ht]
  \begin{center}
@@ -164,11 +144,26 @@ To present our results, we use the same methodology as the original paper to fac
 \\\todo{Describe the performed simulations and their results}
 \\\todo{Include chosen parameter settings}
 
-\section{Discussion}
-\todo{Summary and explanation of our work}
-
 \section{Conclusion}
-\todo{Add related work and an outlook}
+That being said, it shows that the choice of context features heavily influences the representation of the state of an agent.  For example here, an agent records information in its state that one would intuitively not think of as that agent’s state, like each of its neighbor’s loads and rates.  In multi-agent reinforcement learning, agents generally want to make decisions based solely on information gained from reward signals, in this case from other neighbors.  It seems odd then to need to record the internal state of those neighbors for the context features to be created solely rom experiences.  If you choose a more intuitive representation of state, i.e. information completely local to the agent, then creating the context features outlined in the paper is impossible. That is why the querying implementation was used here, because information required to create the context features could not be recovered from experiences alone without being extremely “generous” in what counts as the state of an agent..
+\\\todo{More complaining after..?}
+
+The problem stems from the fact that supervisor has no knowledge of the problem domain a priori, and therefore must extract all information from experiences. To see why it is impossible to extract context features from experiences alone, consider the following intuitive representation of an experience for the load-balancing problem, over a time window of size K:
+\begin{lstlisting}
+State(load, environmentRate, agentRate)
+Process or Forward(i, agentID)
+State’(load, environmentRate, agentRate)
+InverseService(r)
+\end{lstlisting}
+\todo{Is this (above) what you wanted Steve?}\\
+The supervisor can recover the neighbors of the agent by looking at where the agent has forwarded to this window.  That might not be all, or any, of its neighbors so we only recovered a subset of those neighbors.
+
+If we allow the supervisor to look at other experiences in its memory of other agents (which the paper does not explicitly allow, but seems reasonable), then we can recover the relevant information from the experiences of the agents that are neighbors of the given agent, but only if those neighbors are in the supervisor’s memory.
+
+Therefore, to get all of the information necessary to accurately calculate the context features for a given agent, that agent would have had to forward to all of its neighbors at least once in the window and those neighbors would also have had to be part of the same subordinate group (and then there’s still problems and the edges of the subordinate group).
+
+Since this intuitive representation is untenable, we have to choose between using a bloated, unintuitive representation of state, or just querying the agents for the information we require.  We chose the latter.
+\\\todo{Summary and outlook}
 \\\todo{Make sure all questions given below are answered}
 \begin{enumerate}
  \item Does the introduction explain clearly the content of the paper
