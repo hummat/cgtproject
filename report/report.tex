@@ -35,9 +35,10 @@
 
 \title{Review: Accelerating Multi-agent Reinforcement Learning
 with Dynamic Co-learning}
-\author{Steve Homer$^1$, Fabian Perez$^1$, Quinten Rosseel$^1$ and Matthias Humt$^1$ \\
+\author{Steve Homer$^1$, Fabian Perez$^2$, Quinten Rosseel$^2$ and Matthias Humt$^2$ \\
 \mbox{}\\
-$^1$\{steven.homer, fabian.perez, quinten.rosseel, matthias.humt\}@vub.be}
+$^1$steven.t.homer@gmail.com\\
+$^2$\{quinten.rosseel, fabian.ramiro.perez.sanjines, matthias.humt\}@vub.be}
 
 
 \begin{document}
@@ -51,15 +52,15 @@ $^1$\{steven.homer, fabian.perez, quinten.rosseel, matthias.humt\}@vub.be}
 In the standard Reinforcement Learning (RL) setting \citep{sutton1998reinforcement}, an agent is placed into an unknown environment and provided with a set of actions from which it can choose. By performing an action, the agent can change its state which is then solely defined by the previous state the agent was in before and the chosen action. In certain states, defined by the problem setting, the environment provides feedback to the agent, often called \textit{reward} which can be either positive or negative. From this, the agent begins to approximate the underlying reward function in trying to maximize the expected future reward. Once having started to learn, the agent has to decide whether to exploit current knowledge by choosing the actions it expects to yield the highest reward or to explore new states with potentially higher rewards by trying new state-action combinations. This methodology is typically chosen, if the state-space is large and explicitly defining the correct actions to achieve the goal is either infeasible or even impossible as they are not known. An often cited example in this context is learning to ride a bike \citep{randlov1998learning}. The desired outcome is clear, but giving advice how to achieve it in terms of the correct movements to perform is quite difficult.
 
 Multi-Agent Reinforcement Learning (MARL) is an extension to the standard RL problem setting, where multiple, often hundreds or thousands of autonomous agents try to pursue their individual goals simultaneously in a common environment. We speak of cooperative MARL, if multiple or all agents pursue the same goal, which means they try to maximize a common reward function \citep{tuyls2005evolutionary}. If they succeed, we say that they follow a (near-optimal) joint policy where policy means a mapping from states to actions. To achieve this however has proven to be difficult for large-scale multi-agent systems as it is computationally expensive and requires a large number of update steps until it converges.
-
-An important insight on the path to solving this problem is the observation, that an exploitable structure in the problem setting--a distributed load balancing problem (Figure \ref{fig:loadbalancing}), where the agents try to share the work among each other as to minimize processing time--in the form of contextually similar groups of agents emerges during learning. Real world examples of this effect can be observed in disaster planning and sensing networks. Agents working on similar tasks under comparable environmental dynamics might benefit from sharing information to accelerate their individual learning progress which is the paradigm proposed in the paper under review. Additionally, strategies to identify promising candidates for information sharing and group formation are proposed, which will be introduced in the next section along with the test setup. In previous work, agents have either been trained individually on their local environment and neighbors, not being able to benefit from the experience of their peers, or as a hive, optimizing a single joint policy, which becomes quickly intractable even for a moderately large number of agents. But identifying contextually similar groups which are likely to greatly benefit from information sharing comes with its own difficulties. What information should be transferred? What does \textit{similar} mean? How well does this approach scale? The next section will explore some of these questions in detail.
 \begin{figure}[H]
  \begin{center}
-  \includegraphics[width=.7\linewidth]{figures/loadbalancing}
+  \includegraphics[width=.6\linewidth]{figures/loadbalancing}
   \caption{Small load balancing network \citep{garant2015accelerating}}
   \label{fig:loadbalancing}
  \end{center}
 \end{figure}
+\vspace{-5mm}
+An important insight on the path to solving this problem is the observation, that an exploitable structure in the problem setting--a distributed load balancing problem (Figure \ref{fig:loadbalancing}), where the agents try to share the work among each other as to minimize processing time--in the form of contextually similar groups of agents emerges during learning. Real world examples of this effect can be observed in disaster planning and sensing networks. Agents working on similar tasks under comparable environmental dynamics might benefit from sharing information to accelerate their individual learning progress which is the paradigm proposed in the paper under review. Additionally, strategies to identify promising candidates for information sharing and group formation are proposed, which will be introduced in the next section along with the test setup. In previous work, agents have either been trained individually on their local environment and neighbors, not being able to benefit from the experience of their peers, or as a hive, optimizing a single joint policy, which becomes quickly intractable even for a moderately large number of agents. But identifying contextually similar groups which are likely to greatly benefit from information sharing comes with its own difficulties. What information should be transferred? What does \textit{similar} mean? How well does this approach scale? The next section will explore some of these questions in detail.
 
 \section{Methods} \label{sec:methods}
 Several questions arise when designing a solution for this problem: How to identify groups in which information sharing is possible? What information should be transferred between agents in those groups? How can convergence in distributed and concurrent settings be guaranteed? This section provides a high level overview of the author’s conceptual framework and associates their scheme with our implementation of the model.  We highlight several design decisions and attempt to provide insights in difficulties and non-trivialities that pop up in the implementation process.
@@ -114,7 +115,7 @@ The distance functions for each type of context feature follow a similar pattern
 The quantized inverse exponential absolute difference produces discrete values that are near 1 when the distance is near 0 and and near zero when the distance grows large. This allows the Boltzmann distribution to correctly weight small context feature distances with higher probabilities.
 
 \subsubsection{Context Feature Construction}
-Although the paper states that context feature construction is a transformation of an agent’s experiences for a given window into a vector or context features, it is only possible to create the context features only from the experiences of an agent by encapsulating all of the information relevant to the context features in the state of the agent. This sounds trivial, but in this case requires recording the local state (i.e. load, environment task allocation rate, and agent task allocation rate) of each of its neighbors into its own state. Instead of encapsulating all of this data in this extended state, in our implementation the supervisor queries the agent and its neighbors for the information it requires and creates the context features from those responses.  These two methods are equivalent because the exact same information is gathered from querying as extracting from state. This allows us to have a simpler state representation.
+Although the paper states that context feature construction is a transformation of an agent's experiences for a given window into a vector or context features, it is only possible to create the context features only from the experiences of an agent by encapsulating all of the information relevant to the context features in the state of the agent. This sounds trivial, but in this case requires recording the local state (i.e. load, environment task allocation rate, and agent task allocation rate) of each of its neighbors into its own state. Instead of encapsulating all of this data in this extended state, in our implementation the supervisor queries the agent and its neighbors for the information it requires and creates the context features from those responses.  These two methods are equivalent because the exact same information is gathered from querying as extracting from state. This allows us to have a simpler state representation.
 
 \section{Results and Discussion}
 To present our results, we use the same methodology as the original paper to facilitate comparison. The primary measure of performance is the \textit{Area Under the Learning Curve} (AUC). It is computed by taking the difference between the originally assigned service time of each task and the actual time needed by the network to solve it. The mean of this difference in service time per time step is then smoothed using an exponential moving average with a smoothing factor $\alpha=2/(span+1)$, where \textit{span} is set to the time period for which the simulation was run (i.e. $10,000$). The minimum mean value is then subtracted from each remaining value to "lower" the curve onto the x-axis. Taking the area under this curve results into the AUC measure. This measure reflects the performance of a parameterization of the algorithm, as we want the difference in assigned and consumed service time to be as small as possible over as long a time span as possible, which is precisely what the AUC provides.
@@ -128,7 +129,7 @@ Figure \ref{fig:areas} gives an example of the baseline architecture compared to
  \end{center}
 \end{figure}
 
-Clearly, the one supervisory configuration performs much better than the baseline configuration. In the beginning, when the network has not yet learned to distribute the load, the average service time rises quickly. Around 1000 time steps however, the supervisor has identified sharing groups and optimizes the learning process of the subordinates, resulting in fast convergence to a better task distribution. The agents in the baseline configuration also learn to distribute tasks, but do so at a much slower pace and with less success. Compared to the figure 5 of the original paper, the results qualitatively comparable, but not identical. The rate and difficulty of the tasks generated by the environment seem to be higher, as the maxima for both the baseline and one supervisor learning curve are stronger. 
+Clearly, the one supervisory configuration performs much better than the baseline configuration. In the beginning, when the network has not yet learned to distribute the load, the average service time rises quickly. Around 1000 time steps however, the supervisor has identified sharing groups and optimizes the learning process of the subordinates, resulting in fast convergence to a better task distribution. The agents in the baseline configuration also learn to distribute tasks, but do so at a much slower pace and with less success. Compared to the figure 5 of the original paper, the results qualitatively comparable, but not identical. The rate and difficulty of the tasks generated by the environment seem to be higher, as the maxima for both the baseline and one supervisor learning curve are stronger.
 
 As noted in the original paper, the parameters of the network had to be tweaked to yield significant results.  If the network topology and task allocation was too easy or too difficult, no appreciable difference is seen when using the supervisory framework.  Therefore, we and the original authors had to tweak parameters until we found that "goldilocks zone".  Since the original authors gave no detailed guidance in constructing the network or allocating tasks, it makes sense that our results are not exactly the same, since our parametrizations were undoubtedly different, though we still see the same general trend.
 
@@ -153,6 +154,8 @@ In figure \ref{fig:sups} we explore the effect on the learning behavior when usi
 \end{figure}
 
 While the variance of the results increases with a growing number of supervisors, consistent with the reference, it does so more rapidly in our work. Additionally the variance of the baseline configuration is much higher, possibly due to a different approach in computing the \textit{relative} AUC for which there is unfortunately no information provided in the original work. Our approach takes the average over all 30 trials of the baseline configuration to reference against. To highlight the trend towards the baseline performance when adding supervisors, we also display the mean value for all trials represented as small green triangles.
+
+The last parameter influence we want to explore is the network size. Figure \ref{fig:sizes} shows the relative performance of three different sizes against their respective baselines. It has to be noted, that individual baseline data had to be generated for each network size, as this is the first parameter affecting its performance. Here we see the first real divergence from the results seen in the paper. While in the original work performance increases with growing network size--explained by the increase in sharing opportunities per supervisor (see also Figure \ref{fig:sups})--it drops in our approach. Another notable difference is the drastic decrease in variance when growing the network while this cannot be observed in the reference work.
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure8}
@@ -160,8 +163,6 @@ While the variance of the results increases with a growing number of supervisors
   \label{fig:sizes}
  \end{center}
 \end{figure}
-
-The last parameter influence we want to explore is the network size. Figure \ref{fig:sizes} shows the relative performance of three different sizes against their respective baselines. It has to be noted, that individual baseline data had to be generated for each network size, as this is the first parameter affecting its performance. Here we see the first real divergence from the results seen in the paper. While in the original work performance increases with growing network size--explained by the increase in sharing opportunities per supervisor (see also Figure \ref{fig:sups})--it drops in our approach. Another notable difference is the drastic decrease in variance when growing the network while this cannot be observed in the reference work.
 
 This difference from the original paper is most likely due to recurring "goldilocks zone" problem.  The parameters were tuned to fall within this zone--where the network topology and task allocation are neither too easy nor too difficult--for the $N=100$ network size.  Adding more nodes to the network makes the problem easier, because there are more nodes to spread the task processing around.  That is why we see less of an advantage for larger networks: when a problem is too easy, sharing experiences has only a marginal effect because there is less room for improvement.  We attempted to scale the relevant parameters to make the load-balancing problem the same difficulty for the larger networks as the $N=100$ network, but there are no metrics to precisely determine the difficulty of the load-balancing problem provided by the original paper, and so approximating equivalent problem difficulties between different network sizes comes down to guesswork, and was therefore omitted.
 
@@ -194,22 +195,6 @@ As noted earlier, a defined metric definition of the "goldilocks zone" would be 
 In relation to context features, an analysis of the quality vs. quantity tradeoff would be useful.  For instance, suppose that there is a context feature that produces great gains, but is expensive to compute.  There may instead be other context features that are simple to compute, but have limited effect on improvement.  It would be interesting to investigate if many low-quality context features used in conjunction provide similar improvement as a few high-quality context features, and therefore save on computational complexity.
 
 Another avenue may be to extend reinforcement learning to the supervisor.  Since currently, supervisors only perform computation and communication, there is no learning or improvement occurring within a supervisor.  If the subordinate could respond to the supervisor with a reward signal when it receives experiences, the supervisor may be able to use it to learn more about what context features are effective, or which subordinates respond well to shared experiences, allowing the supervisor to improve its context feature construction and sharing group selection.
-
-\\\todo{Make sure all questions given below are answered}
-\begin{enumerate}
- \item Does the introduction explain clearly the content of the paper - Maybe not?
- \item whether there is sufficient background information to understand the relevance of the work - Yes!
- \item whether the methods are clearly explained (can the results be reproduced?) - Yes!
- \item whether the results answer the questions asked in the paper. \todo{Identify questions}
- \item whether all questions are answered - Which ones??
- \item whether the conclusion is sufficient - We'll see.
- \item and whether the overall style is ok and - Oh yes!
- \item whether you believe things are missing in the discussion. - Nope.
- \item etc. - Yes.
- \item 3 positive points concerning the work, clearly specifying why you think they are well-done or interesting
- \item 3 negative points, which may include missing/unclear explanations or suggestions for improvement
- \item at least 3 clear and relevant questions on the content or the methods used which can be asked (next to other questions).
-\end{enumerate}
 
 \footnotesize
 \bibliographystyle{apalike}
