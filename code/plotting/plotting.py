@@ -282,6 +282,7 @@ def figure8(baselines, sizes, labels=None, save=False):
         box.set_facecolor(TABLEAU20[index])
     for med in params['medians']:
         med.set_color('black')
+    ax.axhline(y=1, linewidth=1.5, linestyle='dashed', color='black')
 
     if save:
         plt.savefig("figures/figure8_" + str(datetime.datetime.now()) + ".png", bbox_inches='tight')
@@ -343,6 +344,6 @@ fig8_labels = [
 ]
 # line_plot('csv_data/N_baseline_n729_scaled.csv', save=True)
 # figure4(baseline='csv_data/N_baseline_w25n100.csv', windows=fig4_csv, labels=fig4_labels, save=True)
-figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
+# figure5('csv_data/N_baseline_w25n100.csv', 'csv_data/N_one_sup_w25.csv', save=True)
 # figure7(baseline=fig7_csv[3], filenames=fig7_csv, labels=fig7_labels, save=True)
 # figure8(baselines=fig8_csv[:3], sizes=fig8_csv[3:], labels=fig8_labels, save=True)
