@@ -19,28 +19,26 @@ $^1$\{steven.homer, fabian.perez, quinten.rosseel, matthias.humt\}@vub.be}
 \maketitle
 
 \begin{abstract} \label{sec:abstract}
- This report reviews the paper from \cite{garant2015accelerating} which introduces a new approach to identify periodical experience transfer opportunities in large-scale, stochastic, homogeneous multi-agent systems (MAS) operating in a distributed manner. By using supervisory agents that compute and reason over high-level characterizations (contexts), similarities between agents are identified. Experiments show that the use of this method in the right setting can accelerate MAS learning significantly. We frame our understanding of the work and conclude with an empirical validation.
+ This report reviews the paper from \cite{garant2015accelerating} which introduces a new approach to identify periodical experience transfer opportunities in large-scale, stochastic, homogeneous multi-agent systems (MAS) operating in a distributed manner. By using supervisory agents that compute and reason over high-level characterizations (contexts), similarities between agents are identified. Experiments show that the use of this method in the right settings can accelerate MAS learning significantly. We frame our understanding of the work and conclude with an empirical validation.
 \end{abstract}
 
 \section{Introduction} \label{sec:introduction}
 In the standard Reinforcement Learning (RL) setting, an agent is placed into an unknown environment and provided with a set of actions from which it can choose. By performing an action, the agent can change its state which is then solely defined by the previous state the agent was in before and the chosen action. In certain states, defined by the problem setting, the environment provides feedback to the agent, often called \textit{reward} which can be either positive or negative. From this, the agent begins to approximate the underlying reward function in trying to maximize the expected future reward. Once having started to learn, the agent has to decide whether to exploit current knowledge by choosing the actions it expects to yield the highest reward or to explore new states with potentially higher rewards by trying new state-action combinations. This methodology is typically chosen, if the state-space is large and explicitly defining the correct actions to achieve the goal is either infeasible or even impossible as they are not known. An often cited example in this context is learning to ride a bike \citep{randlov1998learning}. The desired outcome is clear, but giving advice how to achieve it in terms of the correct movements to perform is quite difficult.\\
 Multi-Agent Reinforcement Learning (MARL) is an extension to the standard RL problem setting, where multiple, often hundreds or thousands of autonomous agents try to pursue their individual goals simultaneously in a common environment. We speak of cooperative MARL, if multiple or all agents pursue the same goal, which means they try to maximize a common reward function. If they succeed, we say that they follow a (near-optimal) joint policy where policy means a mapping from states to actions. To achieve this however has proven to be difficult for large-scale multi-agent systems as it is computationally expensive and requires a large number of update steps until it converges.\\
-An important insight on the path to solving this problem is the observation, that an exploitable structure in the problem setting--a distributed load balancing problem, where the agents try to share the work among each other as to minimize processing time--in the form of contextually similar groups of agents emerges during learning.
-Real world examples of this effect can be observed in \todo{Add examples}. Agents working on similar tasks under comparable environmental dynamics might benefit from sharing information to accelerate their individual learning progress which is the paradigm proposed in the paper under review. Additionally, strategies to identify promising candidates for information sharing and group formation are proposed, which will be introduced in the next section along with the test setup. In previous work, agents have either been trained individually on their local environment and neighbors, not being able to benefit from the experience of their peers, or as a hive, optimizing a single joint policy, which becomes quickly intractable even for a moderately large number of agents. But identifying contextually similar groups which are likely to greatly benefit from information sharing comes with its own difficulties. What information should be transferred? What does \textit{similar} mean? How well does this approach scale?\\
-The authors introduce supervisory agents which are instructed to deal with those questions. A supervisory agent differs from a normal agent only in its ability to receive and act on communications from its subordinates. It forms contextually compatible groups of agents and identifies and shares relevant information between them. We will now take a look at how this is done explicitly.
-\\\todo{Add citations}
-\newpage
+An important insight on the path to solving this problem is the observation, that an exploitable structure in the problem setting--a distributed load balancing problem (Figure \ref{fig:loadbalancing}), where the agents try to share the work among each other as to minimize processing time--in the form of contextually similar groups of agents emerges during learning.
+Real world examples of this effect can be observed in \todo{Add examples}. Agents working on similar tasks under comparable environmental dynamics might benefit from sharing information to accelerate their individual learning progress which is the paradigm proposed in the paper under review. Additionally, strategies to identify promising candidates for information sharing and group formation are proposed, which will be introduced in the next section along with the test setup. In previous work, agents have either been trained individually on their local environment and neighbors, not being able to benefit from the experience of their peers, or as a hive, optimizing a single joint policy, which becomes quickly intractable even for a moderately large number of agents. But identifying contextually similar groups which are likely to greatly benefit from information sharing comes with its own difficulties. What information should be transferred? What does \textit{similar} mean? How well does this approach scale? Section \ref{sec:methods} will explore some of these questions in detail.
+\begin{figure}[ht]
+ \begin{center}
+  \includegraphics[width=\linewidth]{figures/loadbalancing}
+  \caption{Small load balancing network \citep{garant2015accelerating}}
+  \label{fig:loadbalancing}
+ \end{center}
+\end{figure}
 
 \section{Methods} \label{sec:methods}
 Several questions arise when designing a solution for this problem. I.e. How to identify groups in which information sharing is possible? What information should be transferred between agents in those groups? How can convergence in distributed and concurrent settings be guaranteed? This section provides a high level overview of the author’s conceptual framework and associates their scheme with our implementation of the model.  We highlight several design decisions and attempt to provide insights in difficulties and non-trivialities that pop up in the concretization process.\\
 The authors propose a model of supervisor and subordinate agents. The subordinates can be seen as the domain specific workers of the system that aim to optimize a joint, domain-specific problem (e.g. load balancing distribution to minimise total service time). Supervisors keep track of subordinate groups and aim to accelerate the learning process using high level feature traits, collected from the subordinates.
-\begin{figure}[ht]
- \begin{center}
-  \includegraphics[width=\linewidth]{figures/loadbalancing}
-  \caption{A small load balancing network \citep{garant2015accelerating}}
-  \label{fig:loadbalancing}
- \end{center}
-\end{figure}
+
 The process starts by creating \textit{subordinate groups} (Figure \ref{fig:subordinate}) consisting of supervisors and subordinates. These groups remain fixed over the entire learning process. After groups are formed, supervisors periodically search for \textit{contextual compatible} subordinates in their subordinate group to compose experience \textit{sharing groups}. In these groups, subordinates are able to share learned experiences with any other member from the sharing group. Experience sharing between subordinates from different supervisors is not allowed. The contextual compatibility depends on factors like metric-defined interactions within a certain group of agents, also referred to as interaction sparsity in literature (e.g. $D^C$ distance measure in implementation) or aggregate effects over group interactions (e.g. amount of sent messages between agents over a time period).
 \begin{figure}[ht]
  \begin{center}
@@ -49,7 +47,7 @@ The process starts by creating \textit{subordinate groups} (Figure \ref{fig:subo
   \label{fig:subordinate}
  \end{center}
 \end{figure}
-In order to keep the shared experiences concise, time-windows of $t$ timesteps are defined to characterize policy, reward and transition changes. Considering that decisions are framed as a Markov Decision Process (MDPs), experiences for one time window $[t_{0}, t_{e}]$ can be represented as a vector of tuples with $s_i, a_i, r_i$ and $s'_i$ corresponding to current state, action, reward and next state of the subordinate. To be even more concise, another possibility would be experience merging within a given time window. This is disregarded due to increased complexity and information loss risks when states are not visited uniformly.
+In order to keep the shared experiences concise, time-windows of $t$ timesteps are defined to characterize policy, reward and transition changes. Considering that decisions are framed as a Markov Decision Process (MDPs), experiences for one time window $[t_{0}, t_{e}]$ can be represented as a vector of tuples with $s_i, a_i, r_i$ and $s'_i$ corresponding to current state, action, reward and next state of the subordinate as depicted below. To be even more concise, another possibility would be experience merging within a given time window. This is disregarded due to increased complexity and information loss risks when states are not visited uniformly.
 \begin{align*}
  \biggl<
   & (s_{i_{t_0}},a_{i_{t_0}},r_{i_{t_0}},s'_{i_{t_0}}), \\
@@ -57,9 +55,7 @@ In order to keep the shared experiences concise, time-windows of $t$ timesteps a
   & \hdots                                              \\
   & (s_{i_{t_e}},a_{i_{t_e}},r_{i_{t_e}},s'_{i_{t_0}})
  \biggr>
- \label{size}
 \end{align*}
-\todo{Explain this thing above}\\
 In a real word setting, experiences could be compressed by using linear regression equations, fitted to a variables set in the window. This is especially effective when agents infrequently change state. These \textit{compressed experiences} can be shared between subordinates using a supervisory agent as proxy. This allows the supervisor to derive context features from reported experiences and share it with subordinates that desire so. Though useful to save network bandwidth in a practical sense, from a theoretical point of view, compression is not desirable since it only adds complexity to the system. We chose to send raw, uncompressed experiences in order to update subordinate Q-values. The diagram below gives an overview of the model.
 \begin{figure}[ht]
  \begin{center}
