@@ -145,12 +145,12 @@ In figure \ref{fig:sups} we explore the effect on the learning behavior when usi
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure7}
-  \caption{Relative Performance by Supervisory Configuration}
+  \caption{Relative Performance by Supervisory Config.}
   \label{fig:sups}
  \end{center}
 \end{figure}
 
-While the variance of the results increases with a growing number of supervisors, consistent with our reference, it does so more rapidly in our work. Additionally the variance of the baseline configuration is much higher, possibly due to a different approach in computing the \textit{relative} AUC for which there is unfortunately no information provided in the original work. Our approach takes the average of all 30 trials of the baseline configuration to reference against. To highlight the trend towards the baseline performance when adding supervisors, we added the mean value for all trials represented as small green triangle.
+While the variance of the results increases with a growing number of supervisors, consistent with our reference, it does so more rapidly in our work. Additionally the variance of the baseline configuration is much higher, possibly due to a different approach in computing the \textit{relative} AUC for which there is unfortunately no information provided in the original work. \todo{Any other ideas?} Our approach takes the average of all 30 trials of the baseline configuration to reference against. To highlight the trend towards the baseline performance when adding supervisors, we added the mean value for all trials represented as small green triangle.
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure8}
@@ -158,6 +158,8 @@ While the variance of the results increases with a growing number of supervisors
   \label{fig:sizes}
  \end{center}
 \end{figure}
+
+The last parameter influence we want to explore is the network size. Figure \ref{fig:sizes} shows the relative performance of three different sizes against their respective baselines. It has to be noted, that individual baseline data had to be generated for each network size, as this is the first parameter affecting its performance, contrary to the learning window size and the number of supervisors (obviously, as there is none). Here we see the first real divergence from the results seen in the paper. While in the original work performance increases with growing network size--explained by the increase in sharing opportunities per supervisor (see also Figure \ref{fig:sups})--it drops in our approach. Another notable difference is the drastic decrease in variance when growing the network while this cannot be observed in the reference work. \todo{Someone has to explain this...}
 
 \section{Conclusion}
 \todo{As this section was moved, the introduction should probably be changed}\\
