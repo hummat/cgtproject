@@ -33,16 +33,22 @@ The authors introduce supervisory agents which are instructed to deal with those
 
 \section{Methods} \label{sec:methods}
 Several questions arise when designing a solution for this problem. I.e. How to identify groups in which information sharing is possible? What information should be transferred between agents in those groups? How can convergence in distributed and concurrent settings be guaranteed? This section provides a high level overview of the author’s conceptual framework and associates their scheme with our implementation of the model.  We highlight several design decisions and attempt to provide insights in difficulties and non-trivialities that pop up in the concretization process.\\
-The authors propose a model of supervisor and subordinate agents. The subordinates can be seen as the domain specific workers of the system that aim to optimize a joint, domain-specific problem (e.g. load balancing distribution to minimise total service time). Supervisors keep track of subordinate groups and aim to accelerate the learning process using high level feature traits, collected from the subordinates.\\
+The authors propose a model of supervisor and subordinate agents. The subordinates can be seen as the domain specific workers of the system that aim to optimize a joint, domain-specific problem (e.g. load balancing distribution to minimise total service time). Supervisors keep track of subordinate groups and aim to accelerate the learning process using high level feature traits, collected from the subordinates.
+\begin{figure}[ht]
+ \begin{center}
+  \includegraphics[width=\linewidth]{figures/loadbalancing}
+  \caption{A small load balancing network \citep{garant2015accelerating}}
+  \label{fig:loadbalancing}
+ \end{center}
+\end{figure}
 The process starts by creating subordinate groups (figure x) consisting of supervisors and subordinates. These groups remain fixed over the entire learning process. After groups are formed, supervisors periodically search for contextual compatible subordinates in their subordinate group to compose experience sharing groups. In these groups, subordinates are able to share learned experiences with any other member from the sharing group. Experience sharing between subordinates from different supervisors is not allowed. The contextual compatibility depends on factors like metric-defined interactions within a certain group of agents, also referred to as interaction sparsity in literature (e.g. DC distance measure in implementation) or aggregate effects over group interactions (e.g. amount of sent messages between agents over a time period).
-\begin{figure}[h]
+\begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/subordinates}
   \caption{Supervisor hierarchy \citep{garant2015accelerating}}
   \label{fig:subordinate}
  \end{center}
 \end{figure}
-\\\todo{Replace placeholder image}\\
 In order to keep the shared experiences concise, time-windows of t timesteps are defined to characterize policy, reward and transition changes. Considering that decisions are framed as a Markov Decision Process (MDPs), experiences for one time window [t0, te] can be represented as a vector of tuples with Si, Ai, Ri and S’i corresponding to current state, action, reward and next state of the subordinate. To be even more concise, another possibility would be experience merging within a given time window. This is disregarded due to increased complexity and information loss risks when states are not visited uniformly.
 \begin{align*}
  \biggl<
@@ -55,14 +61,13 @@ In order to keep the shared experiences concise, time-windows of t timesteps are
 \end{align*}
 \todo{Explain this thing above}\\
 In a real word setting, experiences could be compressed by using linear regression equations, fitted to a variables set in the window. This is especially effective when agents infrequently change state. These compressed experiences can be shared between subordinates using a supervisory agent as proxy. This allows the supervisor to derive context features from reported experiences and share it with subordinates that desire so. Though useful to save network bandwidth in a practical sense, from a theoretical point of view, compression is not desirable since it only adds complexity to the system. We chose to send raw, uncompressed experiences in order to update subordinate Q-values. The diagram below gives an overview of the model.
-\begin{figure}[h]
+\begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/diagram}
   \caption{Supervisory structure \citep{garant2015accelerating}}
   \label{fig:diagram}
  \end{center}
 \end{figure}
-\\\todo{Replace placeholder image}\\
 To conclude the author’s theoretical framework we discuss how context features are constructed from the experiences that are passed along. We note that features like experience imbalance, policy divergence, unobservable state features and disjoint state visitations are attention points to take into account during context feature construction. More information on these concepts can be found in the paper. Since the Context Feature construction is domain-dependent, the authors only provide a general approach for doing so. We decided to...\todo{Connect parts}
 \\\todo{Add Steves part}
 \\\todo{Explain model as proposed in the paper}
@@ -70,28 +75,28 @@ To conclude the author’s theoretical framework we discuss how context features
 
 \section{Results}
 To present our results, we use the same methodology as the original paper to facilitate comparison.
-\begin{figure}[h]
+\begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure4_extended}
   \caption{Effect of varying winow size K}
   \label{fig:windows}
  \end{center}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure5_light}
   \caption{Task Allocation Performance Evaluation}
   \label{fig:areas}
  \end{center}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure7}
   \caption{Relative Performance by Supervisory Configuration}
   \label{fig:sups}
  \end{center}
 \end{figure}
-\begin{figure}[h]
+\begin{figure}[ht]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure8}
   \caption{Relative Performance as network size is varied}
