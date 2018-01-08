@@ -35,7 +35,7 @@
 
 \title{Review: Accelerating Multi-agent Reinforcement Learning
 with Dynamic Co-learning}
-\author{Steve Homer$^1$, Fabian Perez$^2$, Quinten Rosseel$^2$ and Matthias Humt$^2$ \\
+\author{Steven Homer$^1$, Fabian Perez$^2$, Quinten Rosseel$^2$ and Matthias Humt$^2$ \\
 \mbox{}\\
 $^1$steven.t.homer@gmail.com\\
 $^2$\{quinten.rosseel, fabian.ramiro.perez.sanjines, matthias.humt\}@vub.be}
@@ -100,7 +100,7 @@ In a real word setting, experiences could be compressed using linear regression,
  \end{center}
 \end{figure}
 
-To conclude the author’s theoretical framework we discuss how context features are constructed from the experiences that are passed along. We note that features like experience imbalance, policy divergence, unobservable state features and disjoint state visitations are attention points to take into account during context feature construction. More information on these concepts can be found in the paper. Since the context feature construction is domain-dependent, the authors only provide a general approach for doing so. The following paragraphs will explain our approach dealing with the proposed problem, but also ambiguities and missing information.
+To conclude the authors' theoretical framework we discuss how context features are constructed from the experiences that are passed along. We note that features like experience imbalance, policy divergence, unobservable state features and disjoint state visitations are attention points to take into account during context feature construction. More information on these concepts can be found in the paper. Since the context feature construction is domain-dependent, the authors only provide a general approach for doing so. The following paragraphs will explain our approach dealing with the proposed problem, but also ambiguities and missing information.
 
 \subsubsection{Random Graph, Supervisory Topology, Task Allocation}
 For each trial, a random network is generated for the given size and branching factor parameters. The supervisor topology is then imposed randomly on this network, differing from the original where the subordinate group of a supervisor is a highly connected cluster.  Since the supervisor assignment is random, no assumptions can be made about the connectivity of other agents in the subordinate group. In addition, tasks are randomly allocated with random service time. The goal of utilizing so much randomness in the construction of the simulations is to minimize design bias in the network and preclude any cross-domain assumptions that might creep in, especially in supervisor assignment.
@@ -137,7 +137,7 @@ To see the effect of changing the parameters of the model, we will now take a lo
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure4_extended}
-  \caption{Effect of varying winow size K\\Parameters: $S=1/0,N=100$}
+  \caption{Effect of varying window size K\\Parameters: $S=1/0,N=100$}
   \label{fig:windows}
  \end{center}
 \end{figure}
