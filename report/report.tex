@@ -65,13 +65,14 @@ Several questions arise when designing a solution for this problem. I.e. How to 
 The authors propose a model of supervisor and subordinate agents. The subordinates can be seen as the domain specific workers of the system that aim to optimize a joint, domain-specific problem (e.g. load balancing distribution to minimise total service time). Supervisors keep track of subordinate groups and aim to accelerate the learning process using high level feature traits, collected from the subordinates.
 
 The process starts by creating \textit{subordinate groups} (Figure \ref{fig:subordinate}) consisting of supervisors and subordinates. These groups remain fixed over the entire learning process. After groups are formed, supervisors periodically search for \textit{contextual compatible} subordinates in their subordinate group to compose experience \textit{sharing groups}. In these groups, subordinates are able to share learned experiences with any other member from the sharing group. Experience sharing between subordinates from different supervisors is not allowed. The contextual compatibility depends on factors like metric-defined interactions within a certain group of agents, also referred to as interaction sparsity in literature (e.g. $D^C$ distance measure in implementation) or aggregate effects over group interactions (e.g. amount of sent messages between agents over a time period).
-\begin{figure}[ht]
+\begin{figure}[h]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/subordinates}
   \caption{Supervisor hierarchy \citep{garant2015accelerating}}
   \label{fig:subordinate}
  \end{center}
 \end{figure}
+
 In order to keep the shared experiences concise, time-windows of $t$ timesteps are defined to characterize policy, reward and transition changes. Considering that decisions are framed as a Markov Decision Process (MDPs), experiences for one time window $[t_{0}, t_{e}]$ can be represented as a vector of tuples with $s_i, a_i, r_i$ and $s'_i$ corresponding to current state, action, reward and next state of the subordinate as depicted below. To be even more concise, another possibility would be experience merging within a given time window. This is disregarded due to increased complexity and information loss risks when states are not visited uniformly.
 \begin{align*}
  \biggl<
