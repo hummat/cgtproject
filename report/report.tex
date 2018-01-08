@@ -123,7 +123,7 @@ Figure \ref{fig:areas} gives an example of the baseline architecture compared to
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure5_light}
-  \caption{Task Allocation Performance Evaluation\\Parameters: $S=0/1,K=25,N=100$}
+  \caption{Task Allocation Performance Evaluation\\Parameters: $K=25,N=100$}
   \label{fig:areas}
  \end{center}
 \end{figure}
@@ -134,27 +134,27 @@ To see the effect of changing the parameters of the model, we will now take a lo
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure4_extended}
-  \caption{Effect of varying winow size K}
+  \caption{Effect of varying winow size K\\Parameters: $S=1/0,N=100$}
   \label{fig:windows}
  \end{center}
 \end{figure}
 
-Again, our results compare well to those seen in the paper. A rise in $K$ is generally correlated with a rise in relative AUC. There are occasional outliers, just like in the paper, which could be due to small sample size. \todo{Anything else?} The biggest difference is, that even for $K=500$ the performance of the one supervisory configuration is still better than baseline. As seen before in figure \ref{fig:areas} this could be due to easier environment settings. \todo{Or what?}
+Again, our results compare well to those seen in the paper. A rise in $K$ is generally positively correlated with a rise in relative AUC. There are occasional outliers, just like in the paper, which could be due to small sample size. \todo{Anything else?} The biggest difference is, that even for $K=500$ the performance of the one supervisory configuration still outperforms the baseline. As seen before in figure \ref{fig:areas}, this could be due to easier environment settings. \todo{Or what?}
 
-In figure \ref{fig:sups} we explore the effect on the learning behavior when using a greater number of supervisors. The one supervisor scenario is a best case assumption, where sharing groups can be formed between the best suited candidates from the whole population of agents. With a rising number of supervisors the probability to identify contextually similar agents decreases, resulting in a loss of performance. This effect can be observed in both our results and those from \citeauthor{garant2015accelerating}.
+In figure \ref{fig:sups} we explore the effect on the learning behavior when using a greater number of supervisors. The one supervisor scenario is a best case assumption, where sharing groups can be formed between the best suited candidates from the whole population of agents. With a rising number of supervisors the probability to identify contextually similar agents decreases, resulting in a loss of performance. This effect can be observed in both our results and those from \citeauthor{garant2015accelerating}
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure7}
-  \caption{Relative Performance by Supervisory Config.}
+  \caption{Relative Performance by Supervisory Config.\\Parameters: $K=25,N=100$}
   \label{fig:sups}
  \end{center}
 \end{figure}
 
-While the variance of the results increases with a growing number of supervisors, consistent with our reference, it does so more rapidly in our work. Additionally the variance of the baseline configuration is much higher, possibly due to a different approach in computing the \textit{relative} AUC for which there is unfortunately no information provided in the original work. \todo{Any other ideas?} Our approach takes the average of all 30 trials of the baseline configuration to reference against. To highlight the trend towards the baseline performance when adding supervisors, we added the mean value for all trials represented as small green triangle.
+While the variance of the results increases with a growing number of supervisors, consistent with the reference, it does so more rapidly in our work. Additionally the variance of the baseline configuration is much higher, possibly due to a different approach in computing the \textit{relative} AUC for which there is unfortunately no information provided in the original work. \todo{Any other ideas?} Our approach takes the average over all 30 trials of the baseline configuration to reference against. To highlight the trend towards the baseline performance when adding supervisors, we added the mean value for all trials represented as small green triangles.
 \begin{figure}[H]
  \begin{center}
   \includegraphics[width=\linewidth]{figures/figure8}
-  \caption{Relative Performance as network size is varied}
+  \caption{Relative Performance as network size is varied\\Parameters: $S=1/0,K=25$}
   \label{fig:sizes}
  \end{center}
 \end{figure}
