@@ -5,6 +5,10 @@
 - Don't know if reciting the original sources makes sense...
 - Why use R_i if there is already P_i?
 - You don't minimize formulas but functions.
-- Figure 2 is never referenced/explained.
 - In figure 2 the red line (cost P2) should start at zero and end at one imho. The cost is INCREASING linearly with the share of agents taking the path and not DECREASING. This does not affect the shape of the total cost though.
--
+- When solving the linear optimization problem, you first assign P_i to _single paths_ and then again to the path cost, previously named c(P_i).
+- Notation: use subscript i with x and get rid of s_i. R_i is redundant having P_i. Don't use s for the share of agents and a state/vertice. Why not use the notation s_i in figure 2 x-axis if you introduced it? c is a function of x in the beginning and changes to become a function of P.
+- Good: easier example compared to the paper.
+- Good: Solved linear optimization problem for first example instead of only the quadratic one for the second.
+- Complete paths m were not defined previously as posutlated in the article.
+- 
