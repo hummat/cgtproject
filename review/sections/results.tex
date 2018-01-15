@@ -1,4 +1,27 @@
 \documentclass[../review.tex]{subfiles}
 \begin{document}
-\todo{Evaluate whether the results answer the questions asked in the paper (which questions?)}
+\todo{Evaluate whether the results answer the questions asked in the paper and whether all questions are answered} \textcolor{green}{\Large\checkmark}\\
+In the paper, the following questions are explored both on a general and systematic level.
+\begin{enumerate}
+  \item How can providing partial information to agents in a routing game improve outcomes and restore efficiency?
+  \begin{itemize}
+    \item In a simple example
+    \item In the \textit{Wheatstone Network}
+  \end{itemize}
+  \item How to deploy network information to minimize congestion?
+  \item How to minimize the expected aggregated travel cost?
+  \item What is the influence of perfect, partial and no information on the expected aggregated travel cost?
+  \item What is the influence of \textit{public signals} on the expected aggregated cost?
+\end{enumerate}
+In the report, the results of the first example introduced in the paper are reviewed by introducing a similar example found in Pigou (1920). The network structure is identical, but more general, due to a newly introduced parameter $\omega_2$ representing the fixed travel cost of the second path.
+
+Based on this network the optimal agent-to-path mapping is laid out and the argument is made, that full information, counter intuitively, increases the expected aggregated travel cost. A remark on partial and no information is missing. The results are then nicely visualized (figure 2), but the travel cost for the second path (the red line) should have a positive slope, as the cost is zero when no agent takes the path, and one, if all agents take it (though this has no influence on the shape of the total cost).
+
+When demonstrating the effect of public signals, the parameterization is changed to match the one found in the paper. The original results are subsequently paraphrased. It would have been more interesting to explain the method on different parameters, for instance those used before.
+
+The second example is then also identical to the one found in the original work, though first introduced without the, seemingly helpful, zero cost path. As the parameterization is the same, the results are as well. A solution to the quadratic optimization problem is neither calculated nor explained.
+
+Finally, the implementation of a simulator is discussed in a high level manner without providing explicit results.
+
+To summarize, questions found in the paper are answered by and large, but a few intermediate results are missing and the, in large parts, recycled parameterization makes this section less exciting to read. Then again, a few new ideas are introduced and also visualized.
 \end{document}
